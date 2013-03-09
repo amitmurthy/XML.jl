@@ -12,7 +12,7 @@ n = xmlNewNode(C_NULL, "root")
 xmlNodeSetContent(n, "content")
 xmlDocSetRootElement(doc,n)
 
-xmlDocDumpFormatMemory(doc, xmlbuff, buffersize, 1)
+xmlDocDumpFormatMemory(doc, convert(Ptr{xmlbuff}, xmlbuff), buffersize, 1)
 
 end # module io2
 
