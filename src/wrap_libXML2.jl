@@ -25,4 +25,4 @@ check_use_header(hpath) = begin
 end
 
 println(xml2_headers)
-wrap_c.wrap_c_headers(xml2_headers, clang_includes, {}, check_use_header, "libXML2.jl")
+wrap_c.wrap_c_headers(xml2_headers, clang_includes, ASCIIString[], check_use_header, "libXML2.jl")

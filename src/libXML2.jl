@@ -1,71 +1,84 @@
+shlib = :libxml2
+recurs_sym_type(ex::Any) = 
+  (ex==None || typeof(ex)==Symbol || length(ex.args)==1) ? eval(ex) : Expr(ex.head, ex.args[1], recurs_sym_type(ex.args[2]))
 macro c(ret_type, func, arg_types, lib)
-  local _ret_type = eval(ret_type)
-  local _args_in = Any[ symbol(string('a',x)) for x in 1:length(arg_types.args) ]
-  local _lib = @eval $lib
+  local _arg_types = Expr(:tuple, [recurs_sym_type(a) for a in arg_types.args]...)
+  local _ret_type = recurs_sym_type(ret_type)
+  local _args_in = Any[ symbol(string('a',x)) for x in 1:length(_arg_types.args) ]
+  local _lib = eval(lib)
   quote
-    $(esc(func))($(_args_in...)) = ccall( ($(string(func)), $(Expr(:quote, _lib)) ), $(_ret_type), $(arg_types), $(_args_in...) )
+    $(esc(func))($(_args_in...)) = ccall( ($(string(func)), $(Expr(:quote, _lib)) ), $_ret_type, $_arg_types, $(_args_in...) )
   end
 end
 
-shlib=:libxml2
+macro ctypedef(fake_t,real_t)
+  real_t = recurs_sym_type(real_t)
+  quote
+    typealias $fake_t $real_t
+  end
+end
 
-typealias ptrdiff_t Void
-typealias size_t Void
-typealias wchar_t Int32
-typealias __u_char Uint8
-typealias __u_short Uint16
-typealias __u_int Uint32
-typealias __u_long Uint64
-typealias __int8_t Uint8
-typealias __uint8_t Uint8
-typealias __int16_t Int16
-typealias __uint16_t Uint16
-typealias __int32_t Int32
-typealias __uint32_t Uint32
-typealias __int64_t Int64
-typealias __uint64_t Uint64
-typealias __quad_t Int64
-typealias __u_quad_t Uint64
-typealias __dev_t Uint64
-typealias __uid_t Uint32
-typealias __gid_t Uint32
-typealias __ino_t Uint64
-typealias __ino64_t Uint64
-typealias __mode_t Uint32
-typealias __nlink_t Uint64
-typealias __off_t Int64
-typealias __off64_t Int64
-typealias __pid_t Int32
-typealias __fsid_t Void
-typealias __clock_t Int64
-typealias __rlim_t Uint64
-typealias __rlim64_t Uint64
-typealias __id_t Uint32
-typealias __time_t Int64
-typealias __useconds_t Uint32
-typealias __suseconds_t Int64
-typealias __daddr_t Int32
-typealias __swblk_t Int64
-typealias __key_t Int32
-typealias __clockid_t Int32
-typealias __timer_t Ptr{:None}
-typealias __blksize_t Int64
-typealias __blkcnt_t Int64
-typealias __blkcnt64_t Int64
-typealias __fsblkcnt_t Uint64
-typealias __fsblkcnt64_t Uint64
-typealias __fsfilcnt_t Uint64
-typealias __fsfilcnt64_t Uint64
-typealias __ssize_t Int64
-typealias __loff_t __off64_t
-typealias __qaddr_t Ptr{:__quad_t}
-typealias __caddr_t Ptr{:Uint8}
-typealias __intptr_t Int64
-typealias __socklen_t Uint32
-#typealias va_list __builtin_va_list
-#typealias __gnuc_va_list __builtin_va_list
+typealias __va_list_tag Void
+typealias FILE Void 
+
+# header: /usr/include/libxml2/libxml/c14n.h
+
+# header: /usr/include/libxml2/libxml/catalog.h
+@ctypedef ptrdiff_t Void
+@ctypedef size_t Void
+@ctypedef wchar_t Int32
+@ctypedef __u_char Uint8
+@ctypedef __u_short Uint16
+@ctypedef __u_int Uint32
+@ctypedef __u_long Uint64
+@ctypedef __int8_t Uint8
+@ctypedef __uint8_t Uint8
+@ctypedef __int16_t Int16
+@ctypedef __uint16_t Uint16
+@ctypedef __int32_t Int32
+@ctypedef __uint32_t Uint32
+@ctypedef __int64_t Int64
+@ctypedef __uint64_t Uint64
+@ctypedef __quad_t Int64
+@ctypedef __u_quad_t Uint64
+@ctypedef __dev_t Uint64
+@ctypedef __uid_t Uint32
+@ctypedef __gid_t Uint32
+@ctypedef __ino_t Uint64
+@ctypedef __ino64_t Uint64
+@ctypedef __mode_t Uint32
+@ctypedef __nlink_t Uint64
+@ctypedef __off_t Int64
+@ctypedef __off64_t Int64
+@ctypedef __pid_t Int32
+@ctypedef __fsid_t Void
+@ctypedef __clock_t Int64
+@ctypedef __rlim_t Uint64
+@ctypedef __rlim64_t Uint64
+@ctypedef __id_t Uint32
+@ctypedef __time_t Int64
+@ctypedef __useconds_t Uint32
+@ctypedef __suseconds_t Int64
+@ctypedef __daddr_t Int32
+@ctypedef __swblk_t Int64
+@ctypedef __key_t Int32
+@ctypedef __clockid_t Int32
+@ctypedef __timer_t Ptr{:None}
+@ctypedef __blksize_t Int64
+@ctypedef __blkcnt_t Int64
+@ctypedef __blkcnt64_t Int64
+@ctypedef __fsblkcnt_t Uint64
+@ctypedef __fsblkcnt64_t Uint64
+@ctypedef __fsfilcnt_t Uint64
+@ctypedef __fsfilcnt64_t Uint64
+@ctypedef __ssize_t Int64
+@ctypedef __loff_t __off64_t
+@ctypedef __qaddr_t Ptr{:__quad_t}
+@ctypedef __caddr_t Ptr{:Uint8}
+@ctypedef __intptr_t Int64
+@ctypedef __socklen_t Uint32
 @c None xmlCheckVersion (:Int32,) shlib
-typealias xmlChar Uint8
+@ctypedef xmlChar Uint8
 @c Ptr{:xmlChar} xmlStrdup (Ptr{:xmlChar},) shlib
 @c Ptr{:xmlChar} xmlStrndup (Ptr{:xmlChar},:Int32) shlib
 @c Ptr{:xmlChar} xmlCharStrndup (Ptr{:Uint8},:Int32) shlib
@@ -96,31 +109,31 @@ typealias xmlChar Uint8
 @c Int32 xmlUTF8Strlen (Ptr{:xmlChar},) shlib
 @c Int32 xmlUTF8Size (Ptr{:xmlChar},) shlib
 @c Int32 xmlUTF8Charcmp (Ptr{:xmlChar},Ptr{:xmlChar}) shlib
-typealias xmlParserInputBuffer Void
-typealias xmlParserInputBufferPtr Ptr{:xmlParserInputBuffer}
-typealias xmlOutputBuffer Void
-typealias xmlOutputBufferPtr Ptr{:xmlOutputBuffer}
-typealias xmlParserInput Void
-typealias xmlParserInputPtr Ptr{:xmlParserInput}
-typealias xmlParserCtxt Void
-typealias xmlParserCtxtPtr Ptr{:xmlParserCtxt}
-typealias xmlSAXLocator Void
-typealias xmlSAXLocatorPtr Ptr{:xmlSAXLocator}
-typealias xmlSAXHandler Void
-typealias xmlSAXHandlerPtr Ptr{:xmlSAXHandler}
-typealias xmlEntity Void
-typealias xmlEntityPtr Ptr{:xmlEntity}
-# enum ENUM_xmlBufferAllocationScheme
+@ctypedef xmlParserInputBuffer Void
+@ctypedef xmlParserInputBufferPtr Ptr{:xmlParserInputBuffer}
+@ctypedef xmlOutputBuffer Void
+@ctypedef xmlOutputBufferPtr Ptr{:xmlOutputBuffer}
+@ctypedef xmlParserInput Void
+@ctypedef xmlParserInputPtr Ptr{:xmlParserInput}
+@ctypedef xmlParserCtxt Void
+@ctypedef xmlParserCtxtPtr Ptr{:xmlParserCtxt}
+@ctypedef xmlSAXLocator Void
+@ctypedef xmlSAXLocatorPtr Ptr{:xmlSAXLocator}
+@ctypedef xmlSAXHandler Void
+@ctypedef xmlSAXHandlerPtr Ptr{:xmlSAXHandler}
+@ctypedef xmlEntity Void
+@ctypedef xmlEntityPtr Ptr{:xmlEntity}
+# enum xmlBufferAllocationScheme
+@ctypedef xmlBufferAllocationScheme Uint32
 const XML_BUFFER_ALLOC_DOUBLEIT = 0
 const XML_BUFFER_ALLOC_EXACT = 1
 const XML_BUFFER_ALLOC_IMMUTABLE = 2
 const XML_BUFFER_ALLOC_IO = 3
 # end
-
-typealias xmlBufferAllocationScheme Int32
-typealias xmlBuffer Void
-typealias xmlBufferPtr Ptr{:xmlBuffer}
-# enum ENUM_xmlElementType
+@ctypedef xmlBuffer Void
+@ctypedef xmlBufferPtr Ptr{:xmlBuffer}
+# enum xmlElementType
+@ctypedef xmlElementType Uint32
 const XML_ELEMENT_NODE = 1
 const XML_ATTRIBUTE_NODE = 2
 const XML_TEXT_NODE = 3
@@ -143,11 +156,10 @@ const XML_XINCLUDE_START = 19
 const XML_XINCLUDE_END = 20
 const XML_DOCB_DOCUMENT_NODE = 21
 # end
-
-typealias xmlElementType Int32
-typealias xmlNotation Void
-typealias xmlNotationPtr Ptr{:xmlNotation}
-# enum ENUM_xmlAttributeType
+@ctypedef xmlNotation Void
+@ctypedef xmlNotationPtr Ptr{:xmlNotation}
+# enum xmlAttributeType
+@ctypedef xmlAttributeType Uint32
 const XML_ATTRIBUTE_CDATA = 1
 const XML_ATTRIBUTE_ID = 2
 const XML_ATTRIBUTE_IDREF = 3
@@ -159,53 +171,47 @@ const XML_ATTRIBUTE_NMTOKENS = 8
 const XML_ATTRIBUTE_ENUMERATION = 9
 const XML_ATTRIBUTE_NOTATION = 10
 # end
-
-typealias xmlAttributeType Int32
-# enum ENUM_xmlAttributeDefault
+# enum xmlAttributeDefault
+@ctypedef xmlAttributeDefault Uint32
 const XML_ATTRIBUTE_NONE = 1
 const XML_ATTRIBUTE_REQUIRED = 2
 const XML_ATTRIBUTE_IMPLIED = 3
 const XML_ATTRIBUTE_FIXED = 4
 # end
-
-typealias xmlAttributeDefault Int32
-typealias xmlEnumeration Void
-typealias xmlEnumerationPtr Ptr{:xmlEnumeration}
-typealias xmlAttribute Void
-typealias xmlAttributePtr Ptr{:xmlAttribute}
-# enum ENUM_xmlElementContentType
+@ctypedef xmlEnumeration Void
+@ctypedef xmlEnumerationPtr Ptr{:xmlEnumeration}
+@ctypedef xmlAttribute Void
+@ctypedef xmlAttributePtr Ptr{:xmlAttribute}
+# enum xmlElementContentType
+@ctypedef xmlElementContentType Uint32
 const XML_ELEMENT_CONTENT_PCDATA = 1
 const XML_ELEMENT_CONTENT_ELEMENT = 2
 const XML_ELEMENT_CONTENT_SEQ = 3
 const XML_ELEMENT_CONTENT_OR = 4
 # end
-
-typealias xmlElementContentType Int32
-# enum ENUM_xmlElementContentOccur
+# enum xmlElementContentOccur
+@ctypedef xmlElementContentOccur Uint32
 const XML_ELEMENT_CONTENT_ONCE = 1
 const XML_ELEMENT_CONTENT_OPT = 2
 const XML_ELEMENT_CONTENT_MULT = 3
 const XML_ELEMENT_CONTENT_PLUS = 4
 # end
-
-typealias xmlElementContentOccur Int32
-typealias xmlElementContent Void
-typealias xmlElementContentPtr Ptr{:xmlElementContent}
-# enum ENUM_xmlElementTypeVal
+@ctypedef xmlElementContent Void
+@ctypedef xmlElementContentPtr Ptr{:xmlElementContent}
+# enum xmlElementTypeVal
+@ctypedef xmlElementTypeVal Uint32
 const XML_ELEMENT_TYPE_UNDEFINED = 0
 const XML_ELEMENT_TYPE_EMPTY = 1
 const XML_ELEMENT_TYPE_ANY = 2
 const XML_ELEMENT_TYPE_MIXED = 3
 const XML_ELEMENT_TYPE_ELEMENT = 4
 # end
-
-typealias xmlElementTypeVal Int32
-typealias xmlRegexp Void
-typealias xmlRegexpPtr Ptr{:xmlRegexp}
-typealias xmlRegExecCtxt Void
-typealias xmlRegExecCtxtPtr Ptr{:xmlRegExecCtxt}
-typealias xmlDict Void
-typealias xmlDictPtr Ptr{:xmlDict}
+@ctypedef xmlRegexp Void
+@ctypedef xmlRegexpPtr Ptr{:xmlRegexp}
+@ctypedef xmlRegExecCtxt Void
+@ctypedef xmlRegExecCtxtPtr Ptr{:xmlRegExecCtxt}
+@ctypedef xmlDict Void
+@ctypedef xmlDictPtr Ptr{:xmlDict}
 @c xmlDictPtr xmlDictCreate () shlib
 @c xmlDictPtr xmlDictCreateSub (:xmlDictPtr,) shlib
 @c Int32 xmlDictReference (:xmlDictPtr,) shlib
@@ -221,22 +227,23 @@ typealias xmlDictPtr Ptr{:xmlDict}
 @c Int32 xmlRegexpExec (:xmlRegexpPtr,Ptr{:xmlChar}) shlib
 @c None xmlRegexpPrint (Ptr{:FILE},:xmlRegexpPtr) shlib
 @c Int32 xmlRegexpIsDeterminist (:xmlRegexpPtr,) shlib
-typealias xmlRegExecCallbacks Ptr{:Void}
+@ctypedef xmlRegExecCallbacks Ptr{:Void}
 @c xmlRegExecCtxtPtr xmlRegNewExecCtxt (:xmlRegexpPtr,:xmlRegExecCallbacks,Ptr{:None}) shlib
 @c None xmlRegFreeExecCtxt (:xmlRegExecCtxtPtr,) shlib
 @c Int32 xmlRegExecPushString (:xmlRegExecCtxtPtr,Ptr{:xmlChar},Ptr{:None}) shlib
 @c Int32 xmlRegExecPushString2 (:xmlRegExecCtxtPtr,Ptr{:xmlChar},Ptr{:xmlChar},Ptr{:None}) shlib
 @c Int32 xmlRegExecNextValues (:xmlRegExecCtxtPtr,Ptr{:Int32},Ptr{:Int32},Ptr{Ptr{:xmlChar}},Ptr{:Int32}) shlib
 @c Int32 xmlRegExecErrInfo (:xmlRegExecCtxtPtr,Ptr{Ptr{:xmlChar}},Ptr{:Int32},Ptr{:Int32},Ptr{Ptr{:xmlChar}},Ptr{:Int32}) shlib
-typealias xmlExpCtxt Void
-typealias xmlExpCtxtPtr Ptr{:xmlExpCtxt}
+@ctypedef xmlExpCtxt Void
+@ctypedef xmlExpCtxtPtr Ptr{:xmlExpCtxt}
 @c None xmlExpFreeCtxt (:xmlExpCtxtPtr,) shlib
 @c xmlExpCtxtPtr xmlExpNewCtxt (:Int32,:xmlDictPtr) shlib
 @c Int32 xmlExpCtxtNbNodes (:xmlExpCtxtPtr,) shlib
 @c Int32 xmlExpCtxtNbCons (:xmlExpCtxtPtr,) shlib
-typealias xmlExpNode Void
-typealias xmlExpNodePtr Ptr{:xmlExpNode}
-# enum ENUM_xmlExpNodeType
+@ctypedef xmlExpNode Void
+@ctypedef xmlExpNodePtr Ptr{:xmlExpNode}
+# enum xmlExpNodeType
+@ctypedef xmlExpNodeType Uint32
 const XML_EXP_EMPTY = 0
 const XML_EXP_FORBID = 1
 const XML_EXP_ATOM = 2
@@ -244,8 +251,6 @@ const XML_EXP_SEQ = 3
 const XML_EXP_OR = 4
 const XML_EXP_COUNT = 5
 # end
-
-typealias xmlExpNodeType Int32
 @c None xmlExpFree (:xmlExpCtxtPtr,:xmlExpNodePtr) shlib
 @c None xmlExpRef (:xmlExpNodePtr,) shlib
 @c xmlExpNodePtr xmlExpParse (:xmlExpCtxtPtr,Ptr{:Uint8}) shlib
@@ -261,22 +266,23 @@ typealias xmlExpNodeType Int32
 @c xmlExpNodePtr xmlExpExpDerive (:xmlExpCtxtPtr,:xmlExpNodePtr,:xmlExpNodePtr) shlib
 @c Int32 xmlExpSubsume (:xmlExpCtxtPtr,:xmlExpNodePtr,:xmlExpNodePtr) shlib
 @c None xmlExpDump (:xmlBufferPtr,:xmlExpNodePtr) shlib
-typealias xmlElement Void
-typealias xmlElementPtr Ptr{:xmlElement}
-typealias xmlNsType xmlElementType
-typealias xmlNs Void
-typealias xmlNsPtr Ptr{:xmlNs}
-typealias xmlDtd Void
-typealias xmlDtdPtr Ptr{:xmlDtd}
-typealias xmlAttr Void
-typealias xmlAttrPtr Ptr{:xmlAttr}
-typealias xmlID Void
-typealias xmlIDPtr Ptr{:xmlID}
-typealias xmlRef Void
-typealias xmlRefPtr Ptr{:xmlRef}
-typealias xmlNode Void
-typealias xmlNodePtr Ptr{:xmlNode}
-# enum ENUM_xmlDocProperties
+@ctypedef xmlElement Void
+@ctypedef xmlElementPtr Ptr{:xmlElement}
+@ctypedef xmlNsType xmlElementType
+@ctypedef xmlNs Void
+@ctypedef xmlNsPtr Ptr{:xmlNs}
+@ctypedef xmlDtd Void
+@ctypedef xmlDtdPtr Ptr{:xmlDtd}
+@ctypedef xmlAttr Void
+@ctypedef xmlAttrPtr Ptr{:xmlAttr}
+@ctypedef xmlID Void
+@ctypedef xmlIDPtr Ptr{:xmlID}
+@ctypedef xmlRef Void
+@ctypedef xmlRefPtr Ptr{:xmlRef}
+@ctypedef xmlNode Void
+@ctypedef xmlNodePtr Ptr{:xmlNode}
+# enum xmlDocProperties
+@ctypedef xmlDocProperties Uint32
 const XML_DOC_WELLFORMED = 1
 const XML_DOC_NSVALID = 2
 const XML_DOC_OLD10 = 4
@@ -286,13 +292,11 @@ const XML_DOC_USERBUILT = 32
 const XML_DOC_INTERNAL = 64
 const XML_DOC_HTML = 128
 # end
-
-typealias xmlDocProperties Int32
-typealias xmlDoc Void
-typealias xmlDocPtr Ptr{:xmlDoc}
-typealias xmlDOMWrapCtxt Void
-typealias xmlDOMWrapCtxtPtr Ptr{:xmlDOMWrapCtxt}
-typealias xmlDOMWrapAcquireNsFunction Ptr{:Void}
+@ctypedef xmlDoc Void
+@ctypedef xmlDocPtr Ptr{:xmlDoc}
+@ctypedef xmlDOMWrapCtxt Void
+@ctypedef xmlDOMWrapCtxtPtr Ptr{:xmlDOMWrapCtxt}
+@ctypedef xmlDOMWrapAcquireNsFunction Ptr{:Void}
 @c Int32 xmlValidateNCName (Ptr{:xmlChar},:Int32) shlib
 @c Int32 xmlValidateQName (Ptr{:xmlChar},:Int32) shlib
 @c Int32 xmlValidateName (Ptr{:xmlChar},:Int32) shlib
@@ -450,10 +454,10 @@ typealias xmlDOMWrapAcquireNsFunction Ptr{:Void}
 @c xmlNodePtr xmlFirstElementChild (:xmlNodePtr,) shlib
 @c xmlNodePtr xmlLastElementChild (:xmlNodePtr,) shlib
 @c xmlNodePtr xmlPreviousElementSibling (:xmlNodePtr,) shlib
-typealias xmlFreeFunc Ptr{:Void}
-typealias xmlMallocFunc Ptr{:Void}
-typealias xmlReallocFunc Ptr{:Void}
-typealias xmlStrdupFunc Ptr{:Void}
+@ctypedef xmlFreeFunc Ptr{:Void}
+@ctypedef xmlMallocFunc Ptr{:Void}
+@ctypedef xmlReallocFunc Ptr{:Void}
+@ctypedef xmlStrdupFunc Ptr{:Void}
 @c Int32 xmlMemSetup (:xmlFreeFunc,:xmlMallocFunc,:xmlReallocFunc,:xmlStrdupFunc) shlib
 @c Int32 xmlMemGet (Ptr{:xmlFreeFunc},Ptr{:xmlMallocFunc},Ptr{:xmlReallocFunc},Ptr{:xmlStrdupFunc}) shlib
 @c Int32 xmlGcMemSetup (:xmlFreeFunc,:xmlMallocFunc,:xmlMallocFunc,:xmlReallocFunc,:xmlStrdupFunc) shlib
@@ -474,16 +478,16 @@ typealias xmlStrdupFunc Ptr{:Void}
 @c Ptr{:None} xmlReallocLoc (Ptr{:None},:size_t,Ptr{:Uint8},:Int32) shlib
 @c Ptr{:None} xmlMallocAtomicLoc (:size_t,Ptr{:Uint8},:Int32) shlib
 @c Ptr{:Uint8} xmlMemStrdupLoc (Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-typealias xmlMutex Void
-typealias xmlMutexPtr Ptr{:xmlMutex}
-typealias xmlRMutex Void
-typealias xmlRMutexPtr Ptr{:xmlRMutex}
-typealias xmlHashTable Void
-typealias xmlHashTablePtr Ptr{:xmlHashTable}
-typealias xmlHashDeallocator Ptr{:Void}
-typealias xmlHashCopier Ptr{:Void}
-typealias xmlHashScanner Ptr{:Void}
-typealias xmlHashScannerFull Ptr{:Void}
+@ctypedef xmlMutex Void
+@ctypedef xmlMutexPtr Ptr{:xmlMutex}
+@ctypedef xmlRMutex Void
+@ctypedef xmlRMutexPtr Ptr{:xmlRMutex}
+@ctypedef xmlHashTable Void
+@ctypedef xmlHashTablePtr Ptr{:xmlHashTable}
+@ctypedef xmlHashDeallocator Ptr{:Void}
+@ctypedef xmlHashCopier Ptr{:Void}
+@ctypedef xmlHashScanner Ptr{:Void}
+@ctypedef xmlHashScannerFull Ptr{:Void}
 @c xmlHashTablePtr xmlHashCreate (:Int32,) shlib
 @c xmlHashTablePtr xmlHashCreateDict (:Int32,:xmlDictPtr) shlib
 @c None xmlHashFree (:xmlHashTablePtr,:xmlHashDeallocator) shlib
@@ -508,15 +512,15 @@ typealias xmlHashScannerFull Ptr{:Void}
 @c None xmlHashScan3 (:xmlHashTablePtr,Ptr{:xmlChar},Ptr{:xmlChar},Ptr{:xmlChar},:xmlHashScanner,Ptr{:None}) shlib
 @c None xmlHashScanFull (:xmlHashTablePtr,:xmlHashScannerFull,Ptr{:None}) shlib
 @c None xmlHashScanFull3 (:xmlHashTablePtr,Ptr{:xmlChar},Ptr{:xmlChar},Ptr{:xmlChar},:xmlHashScannerFull,Ptr{:None}) shlib
-# enum ENUM_xmlErrorLevel
+# enum xmlErrorLevel
+@ctypedef xmlErrorLevel Uint32
 const XML_ERR_NONE = 0
 const XML_ERR_WARNING = 1
 const XML_ERR_ERROR = 2
 const XML_ERR_FATAL = 3
 # end
-
-typealias xmlErrorLevel Int32
-# enum ENUM_xmlErrorDomain
+# enum xmlErrorDomain
+@ctypedef xmlErrorDomain Uint32
 const XML_FROM_NONE = 0
 const XML_FROM_PARSER = 1
 const XML_FROM_TREE = 2
@@ -547,11 +551,10 @@ const XML_FROM_MODULE = 26
 const XML_FROM_I18N = 27
 const XML_FROM_SCHEMATRONV = 28
 # end
-
-typealias xmlErrorDomain Int32
-typealias xmlError Void
-typealias xmlErrorPtr Ptr{:xmlError}
-# enum ENUM_xmlParserErrors
+@ctypedef xmlError Void
+@ctypedef xmlErrorPtr Ptr{:xmlError}
+# enum xmlParserErrors
+@ctypedef xmlParserErrors Uint32
 const XML_ERR_OK = 0
 const XML_ERR_INTERNAL_ERROR = 1
 const XML_ERR_NO_MEMORY = 2
@@ -1284,10 +1287,8 @@ const XML_I18N_EXCESS_HANDLER = 6002
 const XML_I18N_CONV_FAILED = 6003
 const XML_I18N_NO_OUTPUT = 6004
 # end
-
-typealias xmlParserErrors Int32
-typealias xmlGenericErrorFunc Ptr{:Void}
-typealias xmlStructuredErrorFunc Ptr{:Void}
+@ctypedef xmlGenericErrorFunc Ptr{:Void}
+@ctypedef xmlStructuredErrorFunc Ptr{:Void}
 @c None xmlSetGenericErrorFunc (Ptr{:None},:xmlGenericErrorFunc) shlib
 @c None initGenericErrorDefaultFunc (Ptr{:xmlGenericErrorFunc},) shlib
 @c None xmlSetStructuredErrorFunc (Ptr{:None},:xmlStructuredErrorFunc) shlib
@@ -1303,13 +1304,13 @@ typealias xmlStructuredErrorFunc Ptr{:Void}
 @c None xmlCtxtResetLastError (Ptr{:None},) shlib
 @c None xmlResetError (:xmlErrorPtr,) shlib
 @c Int32 xmlCopyError (:xmlErrorPtr,:xmlErrorPtr) shlib
-typealias xmlLink Void
-typealias xmlLinkPtr Ptr{:xmlLink}
-typealias xmlList Void
-typealias xmlListPtr Ptr{:xmlList}
-typealias xmlListDeallocator Ptr{:Void}
-typealias xmlListDataCompare Ptr{:Void}
-typealias xmlListWalker Ptr{:Void}
+@ctypedef xmlLink Void
+@ctypedef xmlLinkPtr Ptr{:xmlLink}
+@ctypedef xmlList Void
+@ctypedef xmlListPtr Ptr{:xmlList}
+@ctypedef xmlListDeallocator Ptr{:Void}
+@ctypedef xmlListDataCompare Ptr{:Void}
+@ctypedef xmlListWalker Ptr{:Void}
 @c xmlListPtr xmlListCreate (:xmlListDeallocator,:xmlListDataCompare) shlib
 @c None xmlListDelete (:xmlListPtr,) shlib
 @c Ptr{:None} xmlListSearch (:xmlListPtr,Ptr{:None}) shlib
@@ -1336,10 +1337,10 @@ typealias xmlListWalker Ptr{:Void}
 @c xmlListPtr xmlListDup (:xmlListPtr,) shlib
 @c Int32 xmlListCopy (:xmlListPtr,:xmlListPtr) shlib
 @c Ptr{:None} xmlLinkGetData (:xmlLinkPtr,) shlib
-typealias xmlAutomata Void
-typealias xmlAutomataPtr Ptr{:xmlAutomata}
-typealias xmlAutomataState Void
-typealias xmlAutomataStatePtr Ptr{:xmlAutomataState}
+@ctypedef xmlAutomata Void
+@ctypedef xmlAutomataPtr Ptr{:xmlAutomata}
+@ctypedef xmlAutomataState Void
+@ctypedef xmlAutomataStatePtr Ptr{:xmlAutomataState}
 @c xmlAutomataPtr xmlNewAutomata () shlib
 @c None xmlFreeAutomata (:xmlAutomataPtr,) shlib
 @c xmlAutomataStatePtr xmlAutomataGetInitState (:xmlAutomataPtr,) shlib
@@ -1359,22 +1360,22 @@ typealias xmlAutomataStatePtr Ptr{:xmlAutomataState}
 @c Int32 xmlAutomataNewCounter (:xmlAutomataPtr,:Int32,:Int32) shlib
 @c xmlRegexpPtr xmlAutomataCompile (:xmlAutomataPtr,) shlib
 @c Int32 xmlAutomataIsDeterminist (:xmlAutomataPtr,) shlib
-typealias xmlValidState Void
-typealias xmlValidStatePtr Ptr{:xmlValidState}
-typealias xmlValidityErrorFunc Ptr{:Void}
-typealias xmlValidityWarningFunc Ptr{:Void}
-typealias xmlValidCtxt Void
-typealias xmlValidCtxtPtr Ptr{:xmlValidCtxt}
-typealias xmlNotationTable Void
-typealias xmlNotationTablePtr Ptr{:xmlNotationTable}
-typealias xmlElementTable Void
-typealias xmlElementTablePtr Ptr{:xmlElementTable}
-typealias xmlAttributeTable Void
-typealias xmlAttributeTablePtr Ptr{:xmlAttributeTable}
-typealias xmlIDTable Void
-typealias xmlIDTablePtr Ptr{:xmlIDTable}
-typealias xmlRefTable Void
-typealias xmlRefTablePtr Ptr{:xmlRefTable}
+@ctypedef xmlValidState Void
+@ctypedef xmlValidStatePtr Ptr{:xmlValidState}
+@ctypedef xmlValidityErrorFunc Ptr{:Void}
+@ctypedef xmlValidityWarningFunc Ptr{:Void}
+@ctypedef xmlValidCtxt Void
+@ctypedef xmlValidCtxtPtr Ptr{:xmlValidCtxt}
+@ctypedef xmlNotationTable Void
+@ctypedef xmlNotationTablePtr Ptr{:xmlNotationTable}
+@ctypedef xmlElementTable Void
+@ctypedef xmlElementTablePtr Ptr{:xmlElementTable}
+@ctypedef xmlAttributeTable Void
+@ctypedef xmlAttributeTablePtr Ptr{:xmlAttributeTable}
+@ctypedef xmlIDTable Void
+@ctypedef xmlIDTablePtr Ptr{:xmlIDTable}
+@ctypedef xmlRefTable Void
+@ctypedef xmlRefTablePtr Ptr{:xmlRefTable}
 @c xmlNotationPtr xmlAddNotationDecl (:xmlValidCtxtPtr,:xmlDtdPtr,Ptr{:xmlChar},Ptr{:xmlChar},Ptr{:xmlChar}) shlib
 @c xmlNotationTablePtr xmlCopyNotationTable (:xmlNotationTablePtr,) shlib
 @c None xmlFreeNotationTable (:xmlNotationTablePtr,) shlib
@@ -1445,7 +1446,8 @@ typealias xmlRefTablePtr Ptr{:xmlRefTable}
 @c Int32 xmlValidatePushElement (:xmlValidCtxtPtr,:xmlDocPtr,:xmlNodePtr,Ptr{:xmlChar}) shlib
 @c Int32 xmlValidatePushCData (:xmlValidCtxtPtr,Ptr{:xmlChar},:Int32) shlib
 @c Int32 xmlValidatePopElement (:xmlValidCtxtPtr,:xmlDocPtr,:xmlNodePtr,Ptr{:xmlChar}) shlib
-# enum ENUM_xmlEntityType
+# enum xmlEntityType
+@ctypedef xmlEntityType Uint32
 const XML_INTERNAL_GENERAL_ENTITY = 1
 const XML_EXTERNAL_GENERAL_PARSED_ENTITY = 2
 const XML_EXTERNAL_GENERAL_UNPARSED_ENTITY = 3
@@ -1453,10 +1455,8 @@ const XML_INTERNAL_PARAMETER_ENTITY = 4
 const XML_EXTERNAL_PARAMETER_ENTITY = 5
 const XML_INTERNAL_PREDEFINED_ENTITY = 6
 # end
-
-typealias xmlEntityType Int32
-typealias xmlEntitiesTable Void
-typealias xmlEntitiesTablePtr Ptr{:xmlEntitiesTable}
+@ctypedef xmlEntitiesTable Void
+@ctypedef xmlEntitiesTablePtr Ptr{:xmlEntitiesTable}
 @c None xmlInitializePredefinedEntities () shlib
 @c xmlEntityPtr xmlNewEntity (:xmlDocPtr,Ptr{:xmlChar},:Int32,Ptr{:xmlChar},Ptr{:xmlChar},Ptr{:xmlChar}) shlib
 @c xmlEntityPtr xmlAddDocEntity (:xmlDocPtr,Ptr{:xmlChar},:Int32,Ptr{:xmlChar},Ptr{:xmlChar},Ptr{:xmlChar}) shlib
@@ -1474,12 +1474,13 @@ typealias xmlEntitiesTablePtr Ptr{:xmlEntitiesTable}
 @c None xmlDumpEntitiesTable (:xmlBufferPtr,:xmlEntitiesTablePtr) shlib
 @c None xmlDumpEntityDecl (:xmlBufferPtr,:xmlEntityPtr) shlib
 @c None xmlCleanupPredefinedEntities () shlib
-typealias xmlParserInputDeallocate Ptr{:Void}
-typealias xmlParserNodeInfo Void
-typealias xmlParserNodeInfoPtr Ptr{:xmlParserNodeInfo}
-typealias xmlParserNodeInfoSeq Void
-typealias xmlParserNodeInfoSeqPtr Ptr{:xmlParserNodeInfoSeq}
-# enum ENUM_xmlParserInputState
+@ctypedef xmlParserInputDeallocate Ptr{:Void}
+@ctypedef xmlParserNodeInfo Void
+@ctypedef xmlParserNodeInfoPtr Ptr{:xmlParserNodeInfo}
+@ctypedef xmlParserNodeInfoSeq Void
+@ctypedef xmlParserNodeInfoSeqPtr Ptr{:xmlParserNodeInfoSeq}
+# enum xmlParserInputState
+@ctypedef xmlParserInputState Uint32
 const XML_PARSER_EOF = -1
 const XML_PARSER_START = 0
 const XML_PARSER_MISC = 1
@@ -1499,9 +1500,8 @@ const XML_PARSER_EPILOG = 14
 const XML_PARSER_IGNORE = 15
 const XML_PARSER_PUBLIC_LITERAL = 16
 # end
-
-typealias xmlParserInputState Int32
-# enum ENUM_xmlParserMode
+# enum xmlParserMode
+@ctypedef xmlParserMode Uint32
 const XML_PARSE_UNKNOWN = 0
 const XML_PARSE_DOM = 1
 const XML_PARSE_SAX = 2
@@ -1509,42 +1509,41 @@ const XML_PARSE_PUSH_DOM = 3
 const XML_PARSE_PUSH_SAX = 4
 const XML_PARSE_READER = 5
 # end
-
-typealias xmlParserMode Int32
-typealias resolveEntitySAXFunc Ptr{:Void}
-typealias internalSubsetSAXFunc Ptr{:Void}
-typealias externalSubsetSAXFunc Ptr{:Void}
-typealias getEntitySAXFunc Ptr{:Void}
-typealias getParameterEntitySAXFunc Ptr{:Void}
-typealias entityDeclSAXFunc Ptr{:Void}
-typealias notationDeclSAXFunc Ptr{:Void}
-typealias attributeDeclSAXFunc Ptr{:Void}
-typealias elementDeclSAXFunc Ptr{:Void}
-typealias unparsedEntityDeclSAXFunc Ptr{:Void}
-typealias setDocumentLocatorSAXFunc Ptr{:Void}
-typealias startDocumentSAXFunc Ptr{:Void}
-typealias endDocumentSAXFunc Ptr{:Void}
-typealias startElementSAXFunc Ptr{:Void}
-typealias endElementSAXFunc Ptr{:Void}
-typealias attributeSAXFunc Ptr{:Void}
-typealias referenceSAXFunc Ptr{:Void}
-typealias charactersSAXFunc Ptr{:Void}
-typealias ignorableWhitespaceSAXFunc Ptr{:Void}
-typealias processingInstructionSAXFunc Ptr{:Void}
-typealias commentSAXFunc Ptr{:Void}
-typealias cdataBlockSAXFunc Ptr{:Void}
-typealias warningSAXFunc Ptr{:Void}
-typealias errorSAXFunc Ptr{:Void}
-typealias fatalErrorSAXFunc Ptr{:Void}
-typealias isStandaloneSAXFunc Ptr{:Void}
-typealias hasInternalSubsetSAXFunc Ptr{:Void}
-typealias hasExternalSubsetSAXFunc Ptr{:Void}
-typealias startElementNsSAX2Func Ptr{:Void}
-typealias endElementNsSAX2Func Ptr{:Void}
-typealias xmlSAXHandlerV1 Void
-typealias xmlSAXHandlerV1Ptr Ptr{:xmlSAXHandlerV1}
-typealias xmlExternalEntityLoader Ptr{:Void}
-# enum ENUM_xmlCharEncoding
+@ctypedef resolveEntitySAXFunc Ptr{:Void}
+@ctypedef internalSubsetSAXFunc Ptr{:Void}
+@ctypedef externalSubsetSAXFunc Ptr{:Void}
+@ctypedef getEntitySAXFunc Ptr{:Void}
+@ctypedef getParameterEntitySAXFunc Ptr{:Void}
+@ctypedef entityDeclSAXFunc Ptr{:Void}
+@ctypedef notationDeclSAXFunc Ptr{:Void}
+@ctypedef attributeDeclSAXFunc Ptr{:Void}
+@ctypedef elementDeclSAXFunc Ptr{:Void}
+@ctypedef unparsedEntityDeclSAXFunc Ptr{:Void}
+@ctypedef setDocumentLocatorSAXFunc Ptr{:Void}
+@ctypedef startDocumentSAXFunc Ptr{:Void}
+@ctypedef endDocumentSAXFunc Ptr{:Void}
+@ctypedef startElementSAXFunc Ptr{:Void}
+@ctypedef endElementSAXFunc Ptr{:Void}
+@ctypedef attributeSAXFunc Ptr{:Void}
+@ctypedef referenceSAXFunc Ptr{:Void}
+@ctypedef charactersSAXFunc Ptr{:Void}
+@ctypedef ignorableWhitespaceSAXFunc Ptr{:Void}
+@ctypedef processingInstructionSAXFunc Ptr{:Void}
+@ctypedef commentSAXFunc Ptr{:Void}
+@ctypedef cdataBlockSAXFunc Ptr{:Void}
+@ctypedef warningSAXFunc Ptr{:Void}
+@ctypedef errorSAXFunc Ptr{:Void}
+@ctypedef fatalErrorSAXFunc Ptr{:Void}
+@ctypedef isStandaloneSAXFunc Ptr{:Void}
+@ctypedef hasInternalSubsetSAXFunc Ptr{:Void}
+@ctypedef hasExternalSubsetSAXFunc Ptr{:Void}
+@ctypedef startElementNsSAX2Func Ptr{:Void}
+@ctypedef endElementNsSAX2Func Ptr{:Void}
+@ctypedef xmlSAXHandlerV1 Void
+@ctypedef xmlSAXHandlerV1Ptr Ptr{:xmlSAXHandlerV1}
+@ctypedef xmlExternalEntityLoader Ptr{:Void}
+# enum xmlCharEncoding
+@ctypedef xmlCharEncoding Uint32
 const XML_CHAR_ENCODING_ERROR = -1
 const XML_CHAR_ENCODING_NONE = 0
 const XML_CHAR_ENCODING_UTF8 = 1
@@ -1570,12 +1569,10 @@ const XML_CHAR_ENCODING_SHIFT_JIS = 20
 const XML_CHAR_ENCODING_EUC_JP = 21
 const XML_CHAR_ENCODING_ASCII = 22
 # end
-
-typealias xmlCharEncoding Int32
-typealias xmlCharEncodingInputFunc Ptr{:Void}
-typealias xmlCharEncodingOutputFunc Ptr{:Void}
-typealias xmlCharEncodingHandler Void
-typealias xmlCharEncodingHandlerPtr Ptr{:xmlCharEncodingHandler}
+@ctypedef xmlCharEncodingInputFunc Ptr{:Void}
+@ctypedef xmlCharEncodingOutputFunc Ptr{:Void}
+@ctypedef xmlCharEncodingHandler Void
+@ctypedef xmlCharEncodingHandlerPtr Ptr{:xmlCharEncodingHandler}
 @c None xmlInitCharEncodingHandlers () shlib
 @c None xmlCleanupCharEncodingHandlers () shlib
 @c None xmlRegisterCharEncodingHandler (:xmlCharEncodingHandlerPtr,) shlib
@@ -1595,14 +1592,14 @@ typealias xmlCharEncodingHandlerPtr Ptr{:xmlCharEncodingHandler}
 @c Int32 xmlCharEncCloseFunc (Ptr{:xmlCharEncodingHandler},) shlib
 @c Int32 UTF8Toisolat1 (Ptr{:Uint8},Ptr{:Int32},Ptr{:Uint8},Ptr{:Int32}) shlib
 @c Int32 isolat1ToUTF8 (Ptr{:Uint8},Ptr{:Int32},Ptr{:Uint8},Ptr{:Int32}) shlib
-typealias xmlInputMatchCallback Ptr{:Void}
-typealias xmlInputOpenCallback Ptr{:Void}
-typealias xmlInputReadCallback Ptr{:Void}
-typealias xmlInputCloseCallback Ptr{:Void}
-typealias xmlOutputMatchCallback Ptr{:Void}
-typealias xmlOutputOpenCallback Ptr{:Void}
-typealias xmlOutputWriteCallback Ptr{:Void}
-typealias xmlOutputCloseCallback Ptr{:Void}
+@ctypedef xmlInputMatchCallback Ptr{:Void}
+@ctypedef xmlInputOpenCallback Ptr{:Void}
+@ctypedef xmlInputReadCallback Ptr{:Void}
+@ctypedef xmlInputCloseCallback Ptr{:Void}
+@ctypedef xmlOutputMatchCallback Ptr{:Void}
+@ctypedef xmlOutputOpenCallback Ptr{:Void}
+@ctypedef xmlOutputWriteCallback Ptr{:Void}
+@ctypedef xmlOutputCloseCallback Ptr{:Void}
 @c None xmlCleanupInputCallbacks () shlib
 @c Int32 xmlPopInputCallbacks () shlib
 @c None xmlRegisterDefaultInputCallbacks () shlib
@@ -1709,7 +1706,8 @@ typealias xmlOutputCloseCallback Ptr{:Void}
 @c xmlExternalEntityLoader xmlGetExternalEntityLoader () shlib
 @c xmlParserInputPtr xmlLoadExternalEntity (Ptr{:Uint8},Ptr{:Uint8},:xmlParserCtxtPtr) shlib
 @c Int64 xmlByteConsumed (:xmlParserCtxtPtr,) shlib
-# enum ENUM_xmlParserOption
+# enum xmlParserOption
+@ctypedef xmlParserOption Uint32
 const XML_PARSE_RECOVER = 1
 const XML_PARSE_NOENT = 2
 const XML_PARSE_DTDLOAD = 4
@@ -1732,8 +1730,6 @@ const XML_PARSE_NOBASEFIX = 262144
 const XML_PARSE_HUGE = 524288
 const XML_PARSE_OLDSAX = 1048576
 # end
-
-typealias xmlParserOption Int32
 @c None xmlCtxtReset (:xmlParserCtxtPtr,) shlib
 @c Int32 xmlCtxtResetPush (:xmlParserCtxtPtr,Ptr{:Uint8},:Int32,Ptr{:Uint8},Ptr{:Uint8}) shlib
 @c Int32 xmlCtxtUseOptions (:xmlParserCtxtPtr,:Int32) shlib
@@ -1747,7 +1743,8 @@ typealias xmlParserOption Int32
 @c xmlDocPtr xmlCtxtReadMemory (:xmlParserCtxtPtr,Ptr{:Uint8},:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
 @c xmlDocPtr xmlCtxtReadFd (:xmlParserCtxtPtr,:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
 @c xmlDocPtr xmlCtxtReadIO (:xmlParserCtxtPtr,:xmlInputReadCallback,:xmlInputCloseCallback,Ptr{:None},Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-# enum ENUM_xmlFeature
+# enum xmlFeature
+@ctypedef xmlFeature Uint32
 const XML_WITH_THREAD = 1
 const XML_WITH_TREE = 2
 const XML_WITH_OUTPUT = 3
@@ -1782,106 +1779,101 @@ const XML_WITH_ZLIB = 31
 const XML_WITH_ICU = 32
 const XML_WITH_NONE = 99999
 # end
-
-typealias xmlFeature Int32
 @c Int32 xmlHasFeature (:xmlFeature,) shlib
-typealias u_char __u_char
-typealias u_short __u_short
-typealias u_int __u_int
-typealias u_long __u_long
-typealias quad_t __quad_t
-typealias u_quad_t __u_quad_t
-typealias fsid_t __fsid_t
-typealias loff_t __loff_t
-typealias ino_t __ino_t
-typealias dev_t __dev_t
-typealias gid_t __gid_t
-typealias mode_t __mode_t
-typealias nlink_t __nlink_t
-typealias uid_t __uid_t
-typealias pid_t __pid_t
-typealias id_t __id_t
-typealias daddr_t __daddr_t
-typealias caddr_t __caddr_t
-typealias key_t __key_t
-typealias clock_t __clock_t
-typealias time_t __time_t
-typealias clockid_t __clockid_t
-typealias timer_t __timer_t
-typealias ulong Uint64
-typealias ushort Uint16
-typealias uint Uint32
-typealias int8_t Uint8
-typealias int16_t Int16
-typealias int32_t Int32
-typealias int64_t Int64
-typealias u_int8_t Uint8
-typealias u_int16_t Uint16
-typealias u_int32_t Uint32
-typealias u_int64_t Uint64
-typealias register_t Int64
-typealias __sig_atomic_t Int32
-typealias __sigset_t Void
-typealias sigset_t __sigset_t
-typealias suseconds_t __suseconds_t
-typealias __fd_mask Int64
-typealias fd_set Void
-typealias fd_mask __fd_mask
+@ctypedef u_char __u_char
+@ctypedef u_short __u_short
+@ctypedef u_int __u_int
+@ctypedef u_long __u_long
+@ctypedef quad_t __quad_t
+@ctypedef u_quad_t __u_quad_t
+@ctypedef fsid_t __fsid_t
+@ctypedef loff_t __loff_t
+@ctypedef ino_t __ino_t
+@ctypedef dev_t __dev_t
+@ctypedef gid_t __gid_t
+@ctypedef mode_t __mode_t
+@ctypedef nlink_t __nlink_t
+@ctypedef uid_t __uid_t
+@ctypedef pid_t __pid_t
+@ctypedef id_t __id_t
+@ctypedef daddr_t __daddr_t
+@ctypedef caddr_t __caddr_t
+@ctypedef key_t __key_t
+@ctypedef clock_t __clock_t
+@ctypedef time_t __time_t
+@ctypedef clockid_t __clockid_t
+@ctypedef timer_t __timer_t
+@ctypedef ulong Uint64
+@ctypedef ushort Uint16
+@ctypedef uint Uint32
+@ctypedef int8_t Uint8
+@ctypedef int16_t Int16
+@ctypedef int32_t Int32
+@ctypedef int64_t Int64
+@ctypedef u_int8_t Uint8
+@ctypedef u_int16_t Uint16
+@ctypedef u_int32_t Uint32
+@ctypedef u_int64_t Uint64
+@ctypedef register_t Int64
+@ctypedef __sig_atomic_t Int32
+@ctypedef __sigset_t Void
+@ctypedef sigset_t __sigset_t
+@ctypedef suseconds_t __suseconds_t
+@ctypedef __fd_mask Int64
+@ctypedef fd_set Void
+@ctypedef fd_mask __fd_mask
 @c Int32 select (:Int32,Ptr{:fd_set},Ptr{:fd_set},Ptr{:fd_set},Ptr{:Void}) shlib
 @c Int32 pselect (:Int32,Ptr{:fd_set},Ptr{:fd_set},Ptr{:fd_set},Ptr{:Void},Ptr{:__sigset_t}) shlib
 @c Uint32 gnu_dev_major (:Uint64,) shlib
 @c Uint32 gnu_dev_minor (:Uint64,) shlib
 @c Uint64 gnu_dev_makedev (:Uint32,:Uint32) shlib
-typealias blksize_t __blksize_t
-typealias blkcnt_t __blkcnt_t
-typealias fsblkcnt_t __fsblkcnt_t
-typealias fsfilcnt_t __fsfilcnt_t
-typealias pthread_t Uint64
-typealias pthread_attr_t Void
-typealias __pthread_list_t Void
-typealias pthread_mutex_t Void
-typealias pthread_mutexattr_t Void
-typealias pthread_cond_t Void
-typealias pthread_condattr_t Void
-typealias pthread_key_t Uint32
-typealias pthread_once_t Int32
-typealias pthread_rwlock_t Void
-typealias pthread_rwlockattr_t Void
-typealias pthread_spinlock_t Int32
-typealias pthread_barrier_t Void
-typealias pthread_barrierattr_t Void
-typealias xlinkHRef Ptr{:xmlChar}
-typealias xlinkRole Ptr{:xmlChar}
-typealias xlinkTitle Ptr{:xmlChar}
-# enum ENUM_xlinkType
+@ctypedef blksize_t __blksize_t
+@ctypedef blkcnt_t __blkcnt_t
+@ctypedef fsblkcnt_t __fsblkcnt_t
+@ctypedef fsfilcnt_t __fsfilcnt_t
+@ctypedef pthread_t Uint64
+@ctypedef pthread_attr_t Void
+@ctypedef __pthread_list_t Void
+@ctypedef pthread_mutex_t Void
+@ctypedef pthread_mutexattr_t Void
+@ctypedef pthread_cond_t Void
+@ctypedef pthread_condattr_t Void
+@ctypedef pthread_key_t Uint32
+@ctypedef pthread_once_t Int32
+@ctypedef pthread_rwlock_t Void
+@ctypedef pthread_rwlockattr_t Void
+@ctypedef pthread_spinlock_t Int32
+@ctypedef pthread_barrier_t Void
+@ctypedef pthread_barrierattr_t Void
+@ctypedef xlinkHRef Ptr{:xmlChar}
+@ctypedef xlinkRole Ptr{:xmlChar}
+@ctypedef xlinkTitle Ptr{:xmlChar}
+# enum xlinkType
+@ctypedef xlinkType Uint32
 const XLINK_TYPE_NONE = 0
 const XLINK_TYPE_SIMPLE = 1
 const XLINK_TYPE_EXTENDED = 2
 const XLINK_TYPE_EXTENDED_SET = 3
 # end
-
-typealias xlinkType Int32
-# enum ENUM_xlinkShow
+# enum xlinkShow
+@ctypedef xlinkShow Uint32
 const XLINK_SHOW_NONE = 0
 const XLINK_SHOW_NEW = 1
 const XLINK_SHOW_EMBED = 2
 const XLINK_SHOW_REPLACE = 3
 # end
-
-typealias xlinkShow Int32
-# enum ENUM_xlinkActuate
+# enum xlinkActuate
+@ctypedef xlinkActuate Uint32
 const XLINK_ACTUATE_NONE = 0
 const XLINK_ACTUATE_AUTO = 1
 const XLINK_ACTUATE_ONREQUEST = 2
 # end
-
-typealias xlinkActuate Int32
-typealias xlinkNodeDetectFunc Ptr{:Void}
-typealias xlinkSimpleLinkFunk Ptr{:Void}
-typealias xlinkExtendedLinkFunk Ptr{:Void}
-typealias xlinkExtendedLinkSetFunk Ptr{:Void}
-typealias xlinkHandler Void
-typealias xlinkHandlerPtr Ptr{:xlinkHandler}
+@ctypedef xlinkNodeDetectFunc Ptr{:Void}
+@ctypedef xlinkSimpleLinkFunk Ptr{:Void}
+@ctypedef xlinkExtendedLinkFunk Ptr{:Void}
+@ctypedef xlinkExtendedLinkSetFunk Ptr{:Void}
+@ctypedef xlinkHandler Void
+@ctypedef xlinkHandlerPtr Ptr{:xlinkHandler}
 @c xlinkNodeDetectFunc xlinkGetDefaultDetect () shlib
 @c None xlinkSetDefaultDetect (:xlinkNodeDetectFunc,) shlib
 @c xlinkHandlerPtr xlinkGetDefaultHandler () shlib
@@ -1964,14 +1956,14 @@ typealias xlinkHandlerPtr Ptr{:xlinkHandler}
 @c None xmlDefaultSAXHandlerInit () shlib
 @c None xmlInitGlobals () shlib
 @c None xmlCleanupGlobals () shlib
-typealias xmlParserInputBufferCreateFilenameFunc Ptr{:Void}
-typealias xmlOutputBufferCreateFilenameFunc Ptr{:Void}
+@ctypedef xmlParserInputBufferCreateFilenameFunc Ptr{:Void}
+@ctypedef xmlOutputBufferCreateFilenameFunc Ptr{:Void}
 @c xmlParserInputBufferCreateFilenameFunc xmlParserInputBufferCreateFilenameDefault (:xmlParserInputBufferCreateFilenameFunc,) shlib
 @c xmlOutputBufferCreateFilenameFunc xmlOutputBufferCreateFilenameDefault (:xmlOutputBufferCreateFilenameFunc,) shlib
-typealias xmlRegisterNodeFunc Ptr{:Void}
-typealias xmlDeregisterNodeFunc Ptr{:Void}
-typealias xmlGlobalState Void
-typealias xmlGlobalStatePtr Ptr{:xmlGlobalState}
+@ctypedef xmlRegisterNodeFunc Ptr{:Void}
+@ctypedef xmlDeregisterNodeFunc Ptr{:Void}
+@ctypedef xmlGlobalState Void
+@ctypedef xmlGlobalStatePtr Ptr{:xmlGlobalState}
 @c None xmlInitializeGlobalState (:xmlGlobalStatePtr,) shlib
 @c None xmlThrDefSetGenericErrorFunc (Ptr{:None},:xmlGenericErrorFunc) shlib
 @c None xmlThrDefSetStructuredErrorFunc (Ptr{:None},:xmlStructuredErrorFunc) shlib
@@ -2037,23 +2029,21 @@ typealias xmlGlobalStatePtr Ptr{:xmlGlobalState}
 @c Int32 xmlIsMainThread () shlib
 @c None xmlCleanupThreads () shlib
 @c xmlGlobalStatePtr xmlGetGlobalState () shlib
-# enum ENUM_xmlCatalogPrefer
+# enum xmlCatalogPrefer
+@ctypedef xmlCatalogPrefer Uint32
 const XML_CATA_PREFER_NONE = 0
 const XML_CATA_PREFER_PUBLIC = 1
 const XML_CATA_PREFER_SYSTEM = 2
 # end
-
-typealias xmlCatalogPrefer Int32
-# enum ENUM_xmlCatalogAllow
+# enum xmlCatalogAllow
+@ctypedef xmlCatalogAllow Uint32
 const XML_CATA_ALLOW_NONE = 0
 const XML_CATA_ALLOW_GLOBAL = 1
 const XML_CATA_ALLOW_DOCUMENT = 2
 const XML_CATA_ALLOW_ALL = 3
 # end
-
-typealias xmlCatalogAllow Int32
-typealias xmlCatalog Void
-typealias xmlCatalogPtr Ptr{:xmlCatalog}
+@ctypedef xmlCatalog Void
+@ctypedef xmlCatalogPtr Ptr{:xmlCatalog}
 @c xmlCatalogPtr xmlNewCatalog (:Int32,) shlib
 @c xmlCatalogPtr xmlLoadACatalog (Ptr{:Uint8},) shlib
 @c xmlCatalogPtr xmlLoadSGMLSuperCatalog (Ptr{:Uint8},) shlib
@@ -2090,12 +2080,14 @@ typealias xmlCatalogPtr Ptr{:xmlCatalog}
 @c xmlCatalogAllow xmlCatalogGetDefaults () shlib
 @c Ptr{:xmlChar} xmlCatalogGetSystem (Ptr{:xmlChar},) shlib
 @c Ptr{:xmlChar} xmlCatalogGetPublic (Ptr{:xmlChar},) shlib
-typealias xmlChSRange Void
-typealias xmlChSRangePtr Ptr{:xmlChSRange}
-typealias xmlChLRange Void
-typealias xmlChLRangePtr Ptr{:xmlChLRange}
-typealias xmlChRangeGroup Void
-typealias xmlChRangeGroupPtr Ptr{:xmlChRangeGroup}
+
+# header: /usr/include/libxml2/libxml/chvalid.h
+@ctypedef xmlChSRange Void
+@ctypedef xmlChSRangePtr Ptr{:xmlChSRange}
+@ctypedef xmlChLRange Void
+@ctypedef xmlChLRangePtr Ptr{:xmlChLRange}
+@ctypedef xmlChRangeGroup Void
+@ctypedef xmlChRangeGroupPtr Ptr{:xmlChRangeGroup}
 @c Int32 xmlCharInRange (:Uint32,Ptr{:xmlChRangeGroup}) shlib
 @c Int32 xmlIsBaseChar (:Uint32,) shlib
 @c Int32 xmlIsBlank (:Uint32,) shlib
@@ -2105,11 +2097,14 @@ typealias xmlChRangeGroupPtr Ptr{:xmlChRangeGroup}
 @c Int32 xmlIsExtender (:Uint32,) shlib
 @c Int32 xmlIsIdeographic (:Uint32,) shlib
 @c Int32 xmlIsPubidChar (:Uint32,) shlib
-typealias xmlXPathContext Void
-typealias xmlXPathContextPtr Ptr{:xmlXPathContext}
-typealias xmlXPathParserContext Void
-typealias xmlXPathParserContextPtr Ptr{:xmlXPathParserContext}
-# enum ENUM_xmlXPathError
+
+# header: /usr/include/libxml2/libxml/debugXML.h
+@ctypedef xmlXPathContext Void
+@ctypedef xmlXPathContextPtr Ptr{:xmlXPathContext}
+@ctypedef xmlXPathParserContext Void
+@ctypedef xmlXPathParserContextPtr Ptr{:xmlXPathParserContext}
+# enum xmlXPathError
+@ctypedef xmlXPathError Uint32
 const XPATH_EXPRESSION_OK = 0
 const XPATH_NUMBER_ERROR = 1
 const XPATH_UNFINISHED_LITERAL_ERROR = 2
@@ -2135,11 +2130,10 @@ const XPATH_INVALID_CHAR_ERROR = 21
 const XPATH_INVALID_CTXT = 22
 const XPATH_STACK_ERROR = 23
 # end
-
-typealias xmlXPathError Int32
-typealias xmlNodeSet Void
-typealias xmlNodeSetPtr Ptr{:xmlNodeSet}
-# enum ENUM_xmlXPathObjectType
+@ctypedef xmlNodeSet Void
+@ctypedef xmlNodeSetPtr Ptr{:xmlNodeSet}
+# enum xmlXPathObjectType
+@ctypedef xmlXPathObjectType Uint32
 const XPATH_UNDEFINED = 0
 const XPATH_NODESET = 1
 const XPATH_BOOLEAN = 2
@@ -2151,26 +2145,24 @@ const XPATH_LOCATIONSET = 7
 const XPATH_USERS = 8
 const XPATH_XSLT_TREE = 9
 # end
-
-typealias xmlXPathObjectType Int32
-typealias xmlXPathObject Void
-typealias xmlXPathObjectPtr Ptr{:xmlXPathObject}
-typealias xmlXPathConvertFunc Ptr{:Void}
-typealias xmlXPathType Void
-typealias xmlXPathTypePtr Ptr{:xmlXPathType}
-typealias xmlXPathVariable Void
-typealias xmlXPathVariablePtr Ptr{:xmlXPathVariable}
-typealias xmlXPathEvalFunc Ptr{:Void}
-typealias xmlXPathFunct Void
-typealias xmlXPathFuncPtr Ptr{:xmlXPathFunct}
-typealias xmlXPathAxisFunc Ptr{:Void}
-typealias xmlXPathAxis Void
-typealias xmlXPathAxisPtr Ptr{:xmlXPathAxis}
-typealias xmlXPathFunction Ptr{:Void}
-typealias xmlXPathVariableLookupFunc Ptr{:Void}
-typealias xmlXPathFuncLookupFunc Ptr{:Void}
-typealias xmlXPathCompExpr Void
-typealias xmlXPathCompExprPtr Ptr{:xmlXPathCompExpr}
+@ctypedef xmlXPathObject Void
+@ctypedef xmlXPathObjectPtr Ptr{:xmlXPathObject}
+@ctypedef xmlXPathConvertFunc Ptr{:Void}
+@ctypedef xmlXPathType Void
+@ctypedef xmlXPathTypePtr Ptr{:xmlXPathType}
+@ctypedef xmlXPathVariable Void
+@ctypedef xmlXPathVariablePtr Ptr{:xmlXPathVariable}
+@ctypedef xmlXPathEvalFunc Ptr{:Void}
+@ctypedef xmlXPathFunct Void
+@ctypedef xmlXPathFuncPtr Ptr{:xmlXPathFunct}
+@ctypedef xmlXPathAxisFunc Ptr{:Void}
+@ctypedef xmlXPathAxis Void
+@ctypedef xmlXPathAxisPtr Ptr{:xmlXPathAxis}
+@ctypedef xmlXPathFunction Ptr{:Void}
+@ctypedef xmlXPathVariableLookupFunc Ptr{:Void}
+@ctypedef xmlXPathFuncLookupFunc Ptr{:Void}
+@ctypedef xmlXPathCompExpr Void
+@ctypedef xmlXPathCompExprPtr Ptr{:xmlXPathCompExpr}
 @c None xmlXPathFreeObject (:xmlXPathObjectPtr,) shlib
 @c xmlNodeSetPtr xmlXPathNodeSetCreate (:xmlNodePtr,) shlib
 @c None xmlXPathFreeNodeSetList (:xmlXPathObjectPtr,) shlib
@@ -2223,10 +2215,10 @@ typealias xmlXPathCompExprPtr Ptr{:xmlXPathCompExpr}
 @c None xmlLsOneNode (Ptr{:FILE},:xmlNodePtr) shlib
 @c Int32 xmlLsCountNode (:xmlNodePtr,) shlib
 @c Ptr{:Uint8} xmlBoolToText (:Int32,) shlib
-typealias xmlShellReadlineFunc Ptr{:Void}
-typealias xmlShellCtxt Void
-typealias xmlShellCtxtPtr Ptr{:xmlShellCtxt}
-typealias xmlShellCmd Ptr{:Void}
+@ctypedef xmlShellReadlineFunc Ptr{:Void}
+@ctypedef xmlShellCtxt Void
+@ctypedef xmlShellCtxtPtr Ptr{:xmlShellCtxt}
+@ctypedef xmlShellCmd Ptr{:Void}
 @c None xmlShellPrintXPathError (:Int32,Ptr{:Uint8}) shlib
 @c None xmlShellPrintXPathResult (:xmlXPathObjectPtr,) shlib
 @c Int32 xmlShellList (:xmlShellCtxtPtr,Ptr{:Uint8},:xmlNodePtr,:xmlNodePtr) shlib
@@ -2241,21 +2233,25 @@ typealias xmlShellCmd Ptr{:Void}
 @c Int32 xmlShellDu (:xmlShellCtxtPtr,Ptr{:Uint8},:xmlNodePtr,:xmlNodePtr) shlib
 @c Int32 xmlShellPwd (:xmlShellCtxtPtr,Ptr{:Uint8},:xmlNodePtr,:xmlNodePtr) shlib
 @c None xmlShell (:xmlDocPtr,Ptr{:Uint8},:xmlShellReadlineFunc,Ptr{:FILE}) shlib
+
+# header: /usr/include/libxml2/libxml/dict.h
 @c xmlExpCtxtPtr xmlExpNewCtxt (:Int32,:Int32) shlib
 @c xmlHashTablePtr xmlHashCreateDict (:Int32,:Int32) shlib
-typealias htmlParserCtxt xmlParserCtxt
-typealias htmlParserCtxtPtr xmlParserCtxtPtr
-typealias htmlParserNodeInfo xmlParserNodeInfo
-typealias htmlSAXHandler xmlSAXHandler
-typealias htmlSAXHandlerPtr xmlSAXHandlerPtr
-typealias htmlParserInput xmlParserInput
-typealias htmlParserInputPtr xmlParserInputPtr
-typealias htmlDocPtr xmlDocPtr
-typealias htmlNodePtr xmlNodePtr
-typealias htmlElemDesc Void
-typealias htmlElemDescPtr Ptr{:htmlElemDesc}
-typealias htmlEntityDesc Void
-typealias htmlEntityDescPtr Ptr{:htmlEntityDesc}
+
+# header: /usr/include/libxml2/libxml/DOCBparser.h
+@ctypedef htmlParserCtxt xmlParserCtxt
+@ctypedef htmlParserCtxtPtr xmlParserCtxtPtr
+@ctypedef htmlParserNodeInfo xmlParserNodeInfo
+@ctypedef htmlSAXHandler xmlSAXHandler
+@ctypedef htmlSAXHandlerPtr xmlSAXHandlerPtr
+@ctypedef htmlParserInput xmlParserInput
+@ctypedef htmlParserInputPtr xmlParserInputPtr
+@ctypedef htmlDocPtr xmlDocPtr
+@ctypedef htmlNodePtr xmlNodePtr
+@ctypedef htmlElemDesc Void
+@ctypedef htmlElemDescPtr Ptr{:htmlElemDesc}
+@ctypedef htmlEntityDesc Void
+@ctypedef htmlEntityDescPtr Ptr{:htmlEntityDesc}
 @c Ptr{:htmlElemDesc} htmlTagLookup (Ptr{:xmlChar},) shlib
 @c Ptr{:htmlEntityDesc} htmlEntityLookup (Ptr{:xmlChar},) shlib
 @c Ptr{:htmlEntityDesc} htmlEntityValueLookup (:Uint32,) shlib
@@ -2278,7 +2274,8 @@ typealias htmlEntityDescPtr Ptr{:htmlEntityDesc}
 @c htmlParserCtxtPtr htmlCreatePushParserCtxt (:htmlSAXHandlerPtr,Ptr{:None},Ptr{:Uint8},:Int32,Ptr{:Uint8},:xmlCharEncoding) shlib
 @c Int32 htmlParseChunk (:htmlParserCtxtPtr,Ptr{:Uint8},:Int32,:Int32) shlib
 @c None htmlFreeParserCtxt (:htmlParserCtxtPtr,) shlib
-# enum ENUM_htmlParserOption
+# enum htmlParserOption
+@ctypedef htmlParserOption Uint32
 const HTML_PARSE_RECOVER = 1
 const HTML_PARSE_NODEFDTD = 4
 const HTML_PARSE_NOERROR = 32
@@ -2289,8 +2286,6 @@ const HTML_PARSE_NONET = 2048
 const HTML_PARSE_NOIMPLIED = 8192
 const HTML_PARSE_COMPACT = 65536
 # end
-
-typealias htmlParserOption Int32
 @c None htmlCtxtReset (:htmlParserCtxtPtr,) shlib
 @c Int32 htmlCtxtUseOptions (:htmlParserCtxtPtr,:Int32) shlib
 @c htmlDocPtr htmlReadDoc (Ptr{:xmlChar},Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
@@ -2303,15 +2298,14 @@ typealias htmlParserOption Int32
 @c htmlDocPtr htmlCtxtReadMemory (:xmlParserCtxtPtr,Ptr{:Uint8},:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
 @c htmlDocPtr htmlCtxtReadFd (:xmlParserCtxtPtr,:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
 @c htmlDocPtr htmlCtxtReadIO (:xmlParserCtxtPtr,:xmlInputReadCallback,:xmlInputCloseCallback,Ptr{:None},Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-# enum ENUM_htmlStatus
+# enum htmlStatus
+@ctypedef htmlStatus Uint32
 const HTML_NA = 0
 const HTML_INVALID = 1
 const HTML_DEPRECATED = 2
 const HTML_VALID = 4
 const HTML_REQUIRED = 12
 # end
-
-typealias htmlStatus Int32
 @c htmlStatus htmlAttrAllowed (Ptr{:htmlElemDesc},Ptr{:xmlChar},:Int32) shlib
 @c Int32 htmlElementAllowedHere (Ptr{:htmlElemDesc},Ptr{:xmlChar}) shlib
 @c htmlStatus htmlElementStatusHere (Ptr{:htmlElemDesc},Ptr{:htmlElemDesc}) shlib
@@ -2395,7 +2389,7 @@ typealias htmlStatus Int32
 @c None xmlParserInputShrink (:xmlParserInputPtr,) shlib
 @c None htmlInitAutoClose () shlib
 @c htmlParserCtxtPtr htmlCreateFileParserCtxt (Ptr{:Uint8},Ptr{:Uint8}) shlib
-typealias xmlEntityReferenceFunc Ptr{:Void}
+@ctypedef xmlEntityReferenceFunc Ptr{:Void}
 @c None xmlSetEntityReferenceFunc (:xmlEntityReferenceFunc,) shlib
 @c Ptr{:xmlChar} xmlParseQuotedString (:xmlParserCtxtPtr,) shlib
 @c None xmlParseNamespace (:xmlParserCtxtPtr,) shlib
@@ -2406,13 +2400,13 @@ typealias xmlEntityReferenceFunc Ptr{:Void}
 @c Ptr{:xmlChar} xmlNamespaceParseQName (:xmlParserCtxtPtr,Ptr{Ptr{:xmlChar}}) shlib
 @c Ptr{:xmlChar} xmlDecodeEntities (:xmlParserCtxtPtr,:Int32,:Int32,:xmlChar,:xmlChar,:xmlChar) shlib
 @c None xmlHandleEntity (:xmlParserCtxtPtr,:xmlEntityPtr) shlib
-typealias docbParserCtxt xmlParserCtxt
-typealias docbParserCtxtPtr xmlParserCtxtPtr
-typealias docbSAXHandler xmlSAXHandler
-typealias docbSAXHandlerPtr xmlSAXHandlerPtr
-typealias docbParserInput xmlParserInput
-typealias docbParserInputPtr xmlParserInputPtr
-typealias docbDocPtr xmlDocPtr
+@ctypedef docbParserCtxt xmlParserCtxt
+@ctypedef docbParserCtxtPtr xmlParserCtxtPtr
+@ctypedef docbSAXHandler xmlSAXHandler
+@ctypedef docbSAXHandlerPtr xmlSAXHandlerPtr
+@ctypedef docbParserInput xmlParserInput
+@ctypedef docbParserInputPtr xmlParserInputPtr
+@ctypedef docbDocPtr xmlDocPtr
 @c Int32 docbEncodeEntities (Ptr{:Uint8},Ptr{:Int32},Ptr{:Uint8},Ptr{:Int32},:Int32) shlib
 @c docbDocPtr docbSAXParseDoc (Ptr{:xmlChar},Ptr{:Uint8},:docbSAXHandlerPtr,Ptr{:None}) shlib
 @c docbDocPtr docbParseDoc (Ptr{:xmlChar},Ptr{:Uint8}) shlib
@@ -2423,6 +2417,18 @@ typealias docbDocPtr xmlDocPtr
 @c Int32 docbParseChunk (:docbParserCtxtPtr,Ptr{:Uint8},:Int32,:Int32) shlib
 @c docbParserCtxtPtr docbCreateFileParserCtxt (Ptr{:Uint8},Ptr{:Uint8}) shlib
 @c Int32 docbParseDocument (:docbParserCtxtPtr,) shlib
+
+# header: /usr/include/libxml2/libxml/encoding.h
+
+# header: /usr/include/libxml2/libxml/entities.h
+
+# header: /usr/include/libxml2/libxml/globals.h
+
+# header: /usr/include/libxml2/libxml/hash.h
+
+# header: /usr/include/libxml2/libxml/HTMLparser.h
+
+# header: /usr/include/libxml2/libxml/HTMLtree.h
 @c htmlDocPtr htmlNewDoc (Ptr{:xmlChar},Ptr{:xmlChar}) shlib
 @c htmlDocPtr htmlNewDocNoDtD (Ptr{:xmlChar},Ptr{:xmlChar}) shlib
 @c Ptr{:xmlChar} htmlGetMetaEncoding (:htmlDocPtr,) shlib
@@ -2441,8 +2447,12 @@ typealias docbDocPtr xmlDocPtr
 @c None htmlDocContentDumpFormatOutput (:xmlOutputBufferPtr,:xmlDocPtr,Ptr{:Uint8},:Int32) shlib
 @c None htmlNodeDumpOutput (:xmlOutputBufferPtr,:xmlDocPtr,:xmlNodePtr,Ptr{:Uint8}) shlib
 @c Int32 htmlIsBooleanAttr (Ptr{:xmlChar},) shlib
-typealias ftpListCallback Ptr{:Void}
-typealias ftpDataCallback Ptr{:Void}
+
+# header: /usr/include/libxml2/libxml/list.h
+
+# header: /usr/include/libxml2/libxml/nanoftp.h
+@ctypedef ftpListCallback Ptr{:Void}
+@ctypedef ftpDataCallback Ptr{:Void}
 @c None xmlNanoFTPInit () shlib
 @c None xmlNanoFTPCleanup () shlib
 @c Ptr{:None} xmlNanoFTPNewCtxt (Ptr{:Uint8},) shlib
@@ -2465,6 +2475,8 @@ typealias ftpDataCallback Ptr{:Void}
 @c Int32 xmlNanoFTPGetSocket (Ptr{:None},Ptr{:Uint8}) shlib
 @c Int32 xmlNanoFTPGet (Ptr{:None},:ftpDataCallback,Ptr{:None},Ptr{:Uint8}) shlib
 @c Int32 xmlNanoFTPRead (Ptr{:None},Ptr{:None},:Int32) shlib
+
+# header: /usr/include/libxml2/libxml/nanohttp.h
 @c None xmlNanoHTTPInit () shlib
 @c None xmlNanoHTTPCleanup () shlib
 @c None xmlNanoHTTPScanProxy (Ptr{:Uint8},) shlib
@@ -2482,22 +2494,27 @@ typealias ftpDataCallback Ptr{:Void}
 @c Int32 xmlNanoHTTPRead (Ptr{:None},Ptr{:None},:Int32) shlib
 @c Int32 xmlNanoHTTPSave (Ptr{:None},Ptr{:Uint8}) shlib
 @c None xmlNanoHTTPClose (Ptr{:None},) shlib
-typealias xmlPattern Void
-typealias xmlPatternPtr Ptr{:xmlPattern}
-# enum ENUM_xmlPatternFlags
+
+# header: /usr/include/libxml2/libxml/parser.h
+
+# header: /usr/include/libxml2/libxml/parserInternals.h
+
+# header: /usr/include/libxml2/libxml/pattern.h
+@ctypedef xmlPattern Void
+@ctypedef xmlPatternPtr Ptr{:xmlPattern}
+# enum xmlPatternFlags
+@ctypedef xmlPatternFlags Uint32
 const XML_PATTERN_DEFAULT = 0
 const XML_PATTERN_XPATH = 1
 const XML_PATTERN_XSSEL = 2
 const XML_PATTERN_XSFIELD = 4
 # end
-
-typealias xmlPatternFlags Int32
 @c None xmlFreePattern (:xmlPatternPtr,) shlib
 @c None xmlFreePatternList (:xmlPatternPtr,) shlib
 @c xmlPatternPtr xmlPatterncompile (Ptr{:xmlChar},Ptr{:xmlDict},:Int32,Ptr{Ptr{:xmlChar}}) shlib
 @c Int32 xmlPatternMatch (:xmlPatternPtr,:xmlNodePtr) shlib
-typealias xmlStreamCtxt Void
-typealias xmlStreamCtxtPtr Ptr{:xmlStreamCtxt}
+@ctypedef xmlStreamCtxt Void
+@ctypedef xmlStreamCtxtPtr Ptr{:xmlStreamCtxt}
 @c Int32 xmlPatternStreamable (:xmlPatternPtr,) shlib
 @c Int32 xmlPatternMaxDepth (:xmlPatternPtr,) shlib
 @c Int32 xmlPatternMinDepth (:xmlPatternPtr,) shlib
@@ -2509,15 +2526,18 @@ typealias xmlStreamCtxtPtr Ptr{:xmlStreamCtxt}
 @c Int32 xmlStreamPushAttr (:xmlStreamCtxtPtr,Ptr{:xmlChar},Ptr{:xmlChar}) shlib
 @c Int32 xmlStreamPop (:xmlStreamCtxtPtr,) shlib
 @c Int32 xmlStreamWantsAnyNode (:xmlStreamCtxtPtr,) shlib
-typealias xmlRelaxNG Void
-typealias xmlRelaxNGPtr Ptr{:xmlRelaxNG}
-typealias xmlRelaxNGValidityErrorFunc Ptr{:Void}
-typealias xmlRelaxNGValidityWarningFunc Ptr{:Void}
-typealias xmlRelaxNGParserCtxt Void
-typealias xmlRelaxNGParserCtxtPtr Ptr{:xmlRelaxNGParserCtxt}
-typealias xmlRelaxNGValidCtxt Void
-typealias xmlRelaxNGValidCtxtPtr Ptr{:xmlRelaxNGValidCtxt}
-# enum ENUM_xmlRelaxNGValidErr
+
+# header: /usr/include/libxml2/libxml/relaxng.h
+@ctypedef xmlRelaxNG Void
+@ctypedef xmlRelaxNGPtr Ptr{:xmlRelaxNG}
+@ctypedef xmlRelaxNGValidityErrorFunc Ptr{:Void}
+@ctypedef xmlRelaxNGValidityWarningFunc Ptr{:Void}
+@ctypedef xmlRelaxNGParserCtxt Void
+@ctypedef xmlRelaxNGParserCtxtPtr Ptr{:xmlRelaxNGParserCtxt}
+@ctypedef xmlRelaxNGValidCtxt Void
+@ctypedef xmlRelaxNGValidCtxtPtr Ptr{:xmlRelaxNGValidCtxt}
+# enum xmlRelaxNGValidErr
+@ctypedef xmlRelaxNGValidErr Uint32
 const XML_RELAXNG_OK = 0
 const XML_RELAXNG_ERR_MEMORY = 1
 const XML_RELAXNG_ERR_TYPE = 2
@@ -2559,15 +2579,12 @@ const XML_RELAXNG_ERR_INTERNAL = 37
 const XML_RELAXNG_ERR_ELEMWRONG = 38
 const XML_RELAXNG_ERR_TEXTWRONG = 39
 # end
-
-typealias xmlRelaxNGValidErr Int32
-# enum ENUM_xmlRelaxNGParserFlag
+# enum xmlRelaxNGParserFlag
+@ctypedef xmlRelaxNGParserFlag Uint32
 const XML_RELAXNGP_NONE = 0
 const XML_RELAXNGP_FREE_DOC = 1
 const XML_RELAXNGP_CRNG = 2
 # end
-
-typealias xmlRelaxNGParserFlag Int32
 @c Int32 xmlRelaxNGInitTypes () shlib
 @c None xmlRelaxNGCleanupTypes () shlib
 @c xmlRelaxNGParserCtxtPtr xmlRelaxNGNewParserCtxt (Ptr{:Uint8},) shlib
@@ -2592,7 +2609,14 @@ typealias xmlRelaxNGParserFlag Int32
 @c Int32 xmlRelaxNGValidatePushCData (:xmlRelaxNGValidCtxtPtr,Ptr{:xmlChar},:Int32) shlib
 @c Int32 xmlRelaxNGValidatePopElement (:xmlRelaxNGValidCtxtPtr,:xmlDocPtr,:xmlNodePtr) shlib
 @c Int32 xmlRelaxNGValidateFullElement (:xmlRelaxNGValidCtxtPtr,:xmlDocPtr,:xmlNodePtr) shlib
-# enum ENUM_xmlSchemaValType
+
+# header: /usr/include/libxml2/libxml/SAX2.h
+
+# header: /usr/include/libxml2/libxml/SAX.h
+
+# header: /usr/include/libxml2/libxml/schemasInternals.h
+# enum xmlSchemaValType
+@ctypedef xmlSchemaValType Uint32
 const XML_SCHEMAS_UNKNOWN = 0
 const XML_SCHEMAS_STRING = 1
 const XML_SCHEMAS_NORMSTRING = 2
@@ -2641,9 +2665,8 @@ const XML_SCHEMAS_BASE64BINARY = 44
 const XML_SCHEMAS_ANYTYPE = 45
 const XML_SCHEMAS_ANYSIMPLETYPE = 46
 # end
-
-typealias xmlSchemaValType Int32
-# enum ENUM_xmlSchemaTypeType
+# enum xmlSchemaTypeType
+@ctypedef xmlSchemaTypeType Uint32
 const XML_SCHEMA_TYPE_BASIC = 1
 const XML_SCHEMA_TYPE_ANY = 2
 const XML_SCHEMA_TYPE_FACET = 3
@@ -2685,9 +2708,8 @@ const XML_SCHEMA_FACET_MINLENGTH = 1011
 const XML_SCHEMA_EXTRA_QNAMEREF = 2000
 const XML_SCHEMA_EXTRA_ATTR_USE_PROHIB = 2001
 # end
-
-typealias xmlSchemaTypeType Int32
-# enum ENUM_xmlSchemaContentType
+# enum xmlSchemaContentType
+@ctypedef xmlSchemaContentType Uint32
 const XML_SCHEMA_CONTENT_UNKNOWN = 0
 const XML_SCHEMA_CONTENT_EMPTY = 1
 const XML_SCHEMA_CONTENT_ELEMENTS = 2
@@ -2697,37 +2719,38 @@ const XML_SCHEMA_CONTENT_MIXED_OR_ELEMENTS = 5
 const XML_SCHEMA_CONTENT_BASIC = 6
 const XML_SCHEMA_CONTENT_ANY = 7
 # end
-
-typealias xmlSchemaContentType Int32
-typealias xmlSchemaVal Void
-typealias xmlSchemaValPtr Ptr{:xmlSchemaVal}
-typealias xmlSchemaType Void
-typealias xmlSchemaTypePtr Ptr{:xmlSchemaType}
-typealias xmlSchemaFacet Void
-typealias xmlSchemaFacetPtr Ptr{:xmlSchemaFacet}
-typealias xmlSchemaAnnot Void
-typealias xmlSchemaAnnotPtr Ptr{:xmlSchemaAnnot}
-typealias xmlSchemaAttribute Void
-typealias xmlSchemaAttributePtr Ptr{:xmlSchemaAttribute}
-typealias xmlSchemaAttributeLink Void
-typealias xmlSchemaAttributeLinkPtr Ptr{:xmlSchemaAttributeLink}
-typealias xmlSchemaWildcardNs Void
-typealias xmlSchemaWildcardNsPtr Ptr{:xmlSchemaWildcardNs}
-typealias xmlSchemaWildcard Void
-typealias xmlSchemaWildcardPtr Ptr{:xmlSchemaWildcard}
-typealias xmlSchemaAttributeGroup Void
-typealias xmlSchemaAttributeGroupPtr Ptr{:xmlSchemaAttributeGroup}
-typealias xmlSchemaTypeLink Void
-typealias xmlSchemaTypeLinkPtr Ptr{:xmlSchemaTypeLink}
-typealias xmlSchemaFacetLink Void
-typealias xmlSchemaFacetLinkPtr Ptr{:xmlSchemaFacetLink}
-typealias xmlSchemaElement Void
-typealias xmlSchemaElementPtr Ptr{:xmlSchemaElement}
-typealias xmlSchemaNotation Void
-typealias xmlSchemaNotationPtr Ptr{:xmlSchemaNotation}
+@ctypedef xmlSchemaVal Void
+@ctypedef xmlSchemaValPtr Ptr{:xmlSchemaVal}
+@ctypedef xmlSchemaType Void
+@ctypedef xmlSchemaTypePtr Ptr{:xmlSchemaType}
+@ctypedef xmlSchemaFacet Void
+@ctypedef xmlSchemaFacetPtr Ptr{:xmlSchemaFacet}
+@ctypedef xmlSchemaAnnot Void
+@ctypedef xmlSchemaAnnotPtr Ptr{:xmlSchemaAnnot}
+@ctypedef xmlSchemaAttribute Void
+@ctypedef xmlSchemaAttributePtr Ptr{:xmlSchemaAttribute}
+@ctypedef xmlSchemaAttributeLink Void
+@ctypedef xmlSchemaAttributeLinkPtr Ptr{:xmlSchemaAttributeLink}
+@ctypedef xmlSchemaWildcardNs Void
+@ctypedef xmlSchemaWildcardNsPtr Ptr{:xmlSchemaWildcardNs}
+@ctypedef xmlSchemaWildcard Void
+@ctypedef xmlSchemaWildcardPtr Ptr{:xmlSchemaWildcard}
+@ctypedef xmlSchemaAttributeGroup Void
+@ctypedef xmlSchemaAttributeGroupPtr Ptr{:xmlSchemaAttributeGroup}
+@ctypedef xmlSchemaTypeLink Void
+@ctypedef xmlSchemaTypeLinkPtr Ptr{:xmlSchemaTypeLink}
+@ctypedef xmlSchemaFacetLink Void
+@ctypedef xmlSchemaFacetLinkPtr Ptr{:xmlSchemaFacetLink}
+@ctypedef xmlSchemaElement Void
+@ctypedef xmlSchemaElementPtr Ptr{:xmlSchemaElement}
+@ctypedef xmlSchemaNotation Void
+@ctypedef xmlSchemaNotationPtr Ptr{:xmlSchemaNotation}
 @c None xmlSchemaFreeType (:xmlSchemaTypePtr,) shlib
 @c None xmlSchemaFreeWildcard (:xmlSchemaWildcardPtr,) shlib
-# enum ENUM_xmlSchematronValidOptions
+
+# header: /usr/include/libxml2/libxml/schematron.h
+# enum xmlSchematronValidOptions
+@ctypedef xmlSchematronValidOptions Uint32
 const XML_SCHEMATRON_OUT_QUIET = 1
 const XML_SCHEMATRON_OUT_TEXT = 2
 const XML_SCHEMATRON_OUT_XML = 4
@@ -2736,16 +2759,14 @@ const XML_SCHEMATRON_OUT_FILE = 256
 const XML_SCHEMATRON_OUT_BUFFER = 512
 const XML_SCHEMATRON_OUT_IO = 1024
 # end
-
-typealias xmlSchematronValidOptions Int32
-typealias xmlSchematron Void
-typealias xmlSchematronPtr Ptr{:xmlSchematron}
-typealias xmlSchematronValidityErrorFunc Ptr{:Void}
-typealias xmlSchematronValidityWarningFunc Ptr{:Void}
-typealias xmlSchematronParserCtxt Void
-typealias xmlSchematronParserCtxtPtr Ptr{:xmlSchematronParserCtxt}
-typealias xmlSchematronValidCtxt Void
-typealias xmlSchematronValidCtxtPtr Ptr{:xmlSchematronValidCtxt}
+@ctypedef xmlSchematron Void
+@ctypedef xmlSchematronPtr Ptr{:xmlSchematron}
+@ctypedef xmlSchematronValidityErrorFunc Ptr{:Void}
+@ctypedef xmlSchematronValidityWarningFunc Ptr{:Void}
+@ctypedef xmlSchematronParserCtxt Void
+@ctypedef xmlSchematronParserCtxtPtr Ptr{:xmlSchematronParserCtxt}
+@ctypedef xmlSchematronValidCtxt Void
+@ctypedef xmlSchematronValidCtxtPtr Ptr{:xmlSchematronValidCtxt}
 @c xmlSchematronParserCtxtPtr xmlSchematronNewParserCtxt (Ptr{:Uint8},) shlib
 @c xmlSchematronParserCtxtPtr xmlSchematronNewMemParserCtxt (Ptr{:Uint8},:Int32) shlib
 @c xmlSchematronParserCtxtPtr xmlSchematronNewDocParserCtxt (:xmlDocPtr,) shlib
@@ -2756,8 +2777,14 @@ typealias xmlSchematronValidCtxtPtr Ptr{:xmlSchematronValidCtxt}
 @c xmlSchematronValidCtxtPtr xmlSchematronNewValidCtxt (:xmlSchematronPtr,:Int32) shlib
 @c None xmlSchematronFreeValidCtxt (:xmlSchematronValidCtxtPtr,) shlib
 @c Int32 xmlSchematronValidateDoc (:xmlSchematronValidCtxtPtr,:xmlDocPtr) shlib
-typealias xmlURI Void
-typealias xmlURIPtr Ptr{:xmlURI}
+
+# header: /usr/include/libxml2/libxml/threads.h
+
+# header: /usr/include/libxml2/libxml/tree.h
+
+# header: /usr/include/libxml2/libxml/uri.h
+@ctypedef xmlURI Void
+@ctypedef xmlURIPtr Ptr{:xmlURI}
 @c xmlURIPtr xmlCreateURI () shlib
 @c Ptr{:xmlChar} xmlBuildURI (Ptr{:xmlChar},Ptr{:xmlChar}) shlib
 @c Ptr{:xmlChar} xmlBuildRelativeURI (Ptr{:xmlChar},Ptr{:xmlChar}) shlib
@@ -2773,8 +2800,12 @@ typealias xmlURIPtr Ptr{:xmlURI}
 @c None xmlFreeURI (:xmlURIPtr,) shlib
 @c Ptr{:xmlChar} xmlCanonicPath (Ptr{:xmlChar},) shlib
 @c Ptr{:xmlChar} xmlPathToURI (Ptr{:xmlChar},) shlib
-typealias xmlXIncludeCtxt Void
-typealias xmlXIncludeCtxtPtr Ptr{:xmlXIncludeCtxt}
+
+# header: /usr/include/libxml2/libxml/valid.h
+
+# header: /usr/include/libxml2/libxml/xinclude.h
+@ctypedef xmlXIncludeCtxt Void
+@ctypedef xmlXIncludeCtxtPtr Ptr{:xmlXIncludeCtxt}
 @c Int32 xmlXIncludeProcess (:xmlDocPtr,) shlib
 @c Int32 xmlXIncludeProcessFlags (:xmlDocPtr,:Int32) shlib
 @c Int32 xmlXIncludeProcessFlagsData (:xmlDocPtr,:Int32,Ptr{:None}) shlib
@@ -2785,19 +2816,35 @@ typealias xmlXIncludeCtxtPtr Ptr{:xmlXIncludeCtxt}
 @c Int32 xmlXIncludeSetFlags (:xmlXIncludeCtxtPtr,:Int32) shlib
 @c None xmlXIncludeFreeContext (:xmlXIncludeCtxtPtr,) shlib
 @c Int32 xmlXIncludeProcessNode (:xmlXIncludeCtxtPtr,:xmlNodePtr) shlib
-typealias xmlModule Void
-typealias xmlModulePtr Ptr{:xmlModule}
-# enum ENUM_xmlModuleOption
+
+# header: /usr/include/libxml2/libxml/xlink.h
+
+# header: /usr/include/libxml2/libxml/xmlautomata.h
+
+# header: /usr/include/libxml2/libxml/xmlerror.h
+
+# header: /usr/include/libxml2/libxml/xmlexports.h
+
+# header: /usr/include/libxml2/libxml/xmlIO.h
+
+# header: /usr/include/libxml2/libxml/xmlmemory.h
+
+# header: /usr/include/libxml2/libxml/xmlmodule.h
+@ctypedef xmlModule Void
+@ctypedef xmlModulePtr Ptr{:xmlModule}
+# enum xmlModuleOption
+@ctypedef xmlModuleOption Uint32
 const XML_MODULE_LAZY = 1
 const XML_MODULE_LOCAL = 2
 # end
-
-typealias xmlModuleOption Int32
 @c xmlModulePtr xmlModuleOpen (Ptr{:Uint8},:Int32) shlib
 @c Int32 xmlModuleSymbol (:xmlModulePtr,Ptr{:Uint8},Ptr{Ptr{:None}}) shlib
 @c Int32 xmlModuleClose (:xmlModulePtr,) shlib
 @c Int32 xmlModuleFree (:xmlModulePtr,) shlib
-# enum ENUM_xmlSchemaValidError
+
+# header: /usr/include/libxml2/libxml/xmlreader.h
+# enum xmlSchemaValidError
+@ctypedef xmlSchemaValidError Uint32
 const XML_SCHEMAS_ERR_OK = 0
 const XML_SCHEMAS_ERR_NOROOT = 1
 const XML_SCHEMAS_ERR_UNDECLAREDELEM = 2
@@ -2825,21 +2872,18 @@ const XML_SCHEMAS_ERR_FACET = 23
 const XML_SCHEMAS_ERR_ = 24
 const XML_SCHEMAS_ERR_XXX = 25
 # end
-
-typealias xmlSchemaValidError Int32
-# enum ENUM_xmlSchemaValidOption
+# enum xmlSchemaValidOption
+@ctypedef xmlSchemaValidOption Uint32
 const XML_SCHEMA_VAL_VC_I_CREATE = 1
 # end
-
-typealias xmlSchemaValidOption Int32
-typealias xmlSchema Void
-typealias xmlSchemaPtr Ptr{:xmlSchema}
-typealias xmlSchemaValidityErrorFunc Ptr{:Void}
-typealias xmlSchemaValidityWarningFunc Ptr{:Void}
-typealias xmlSchemaParserCtxt Void
-typealias xmlSchemaParserCtxtPtr Ptr{:xmlSchemaParserCtxt}
-typealias xmlSchemaValidCtxt Void
-typealias xmlSchemaValidCtxtPtr Ptr{:xmlSchemaValidCtxt}
+@ctypedef xmlSchema Void
+@ctypedef xmlSchemaPtr Ptr{:xmlSchema}
+@ctypedef xmlSchemaValidityErrorFunc Ptr{:Void}
+@ctypedef xmlSchemaValidityWarningFunc Ptr{:Void}
+@ctypedef xmlSchemaParserCtxt Void
+@ctypedef xmlSchemaParserCtxtPtr Ptr{:xmlSchemaParserCtxt}
+@ctypedef xmlSchemaValidCtxt Void
+@ctypedef xmlSchemaValidCtxtPtr Ptr{:xmlSchemaValidCtxt}
 @c xmlSchemaParserCtxtPtr xmlSchemaNewParserCtxt (Ptr{:Uint8},) shlib
 @c xmlSchemaParserCtxtPtr xmlSchemaNewMemParserCtxt (Ptr{:Uint8},:Int32) shlib
 @c xmlSchemaParserCtxtPtr xmlSchemaNewDocParserCtxt (:xmlDocPtr,) shlib
@@ -2863,19 +2907,19 @@ typealias xmlSchemaValidCtxtPtr Ptr{:xmlSchemaValidCtxt}
 @c Int32 xmlSchemaValidateStream (:xmlSchemaValidCtxtPtr,:xmlParserInputBufferPtr,:xmlCharEncoding,:xmlSAXHandlerPtr,Ptr{:None}) shlib
 @c Int32 xmlSchemaValidateFile (:xmlSchemaValidCtxtPtr,Ptr{:Uint8},:Int32) shlib
 @c xmlParserCtxtPtr xmlSchemaValidCtxtGetParserCtxt (:xmlSchemaValidCtxtPtr,) shlib
-typealias xmlSchemaSAXPlugStruct Void
-typealias xmlSchemaSAXPlugPtr Ptr{:xmlSchemaSAXPlugStruct}
+@ctypedef xmlSchemaSAXPlugStruct Void
+@ctypedef xmlSchemaSAXPlugPtr Ptr{:xmlSchemaSAXPlugStruct}
 @c xmlSchemaSAXPlugPtr xmlSchemaSAXPlug (:xmlSchemaValidCtxtPtr,Ptr{:xmlSAXHandlerPtr},Ptr{Ptr{:None}}) shlib
 @c Int32 xmlSchemaSAXUnplug (:xmlSchemaSAXPlugPtr,) shlib
-# enum ENUM_xmlParserSeverities
+# enum xmlParserSeverities
+@ctypedef xmlParserSeverities Uint32
 const XML_PARSER_SEVERITY_VALIDITY_WARNING = 1
 const XML_PARSER_SEVERITY_VALIDITY_ERROR = 2
 const XML_PARSER_SEVERITY_WARNING = 3
 const XML_PARSER_SEVERITY_ERROR = 4
 # end
-
-typealias xmlParserSeverities Int32
-# enum ENUM_xmlTextReaderMode
+# enum xmlTextReaderMode
+@ctypedef xmlTextReaderMode Uint32
 const XML_TEXTREADER_MODE_INITIAL = 0
 const XML_TEXTREADER_MODE_INTERACTIVE = 1
 const XML_TEXTREADER_MODE_ERROR = 2
@@ -2883,17 +2927,15 @@ const XML_TEXTREADER_MODE_EOF = 3
 const XML_TEXTREADER_MODE_CLOSED = 4
 const XML_TEXTREADER_MODE_READING = 5
 # end
-
-typealias xmlTextReaderMode Int32
-# enum ENUM_xmlParserProperties
+# enum xmlParserProperties
+@ctypedef xmlParserProperties Uint32
 const XML_PARSER_LOADDTD = 1
 const XML_PARSER_DEFAULTATTRS = 2
 const XML_PARSER_VALIDATE = 3
 const XML_PARSER_SUBST_ENTITIES = 4
 # end
-
-typealias xmlParserProperties Int32
-# enum ENUM_xmlReaderTypes
+# enum xmlReaderTypes
+@ctypedef xmlReaderTypes Uint32
 const XML_READER_TYPE_NONE = 0
 const XML_READER_TYPE_ELEMENT = 1
 const XML_READER_TYPE_ATTRIBUTE = 2
@@ -2913,10 +2955,8 @@ const XML_READER_TYPE_END_ELEMENT = 15
 const XML_READER_TYPE_END_ENTITY = 16
 const XML_READER_TYPE_XML_DECLARATION = 17
 # end
-
-typealias xmlReaderTypes Int32
-typealias xmlTextReader Void
-typealias xmlTextReaderPtr Ptr{:xmlTextReader}
+@ctypedef xmlTextReader Void
+@ctypedef xmlTextReaderPtr Ptr{:xmlTextReader}
 @c xmlTextReaderPtr xmlNewTextReader (:xmlParserInputBufferPtr,Ptr{:Uint8}) shlib
 @c xmlTextReaderPtr xmlNewTextReaderFilename (Ptr{:Uint8},) shlib
 @c None xmlFreeTextReader (:xmlTextReaderPtr,) shlib
@@ -2997,14 +3037,19 @@ typealias xmlTextReaderPtr Ptr{:xmlTextReader}
 @c Int32 xmlReaderNewMemory (:xmlTextReaderPtr,Ptr{:Uint8},:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
 @c Int32 xmlReaderNewFd (:xmlTextReaderPtr,:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
 @c Int32 xmlReaderNewIO (:xmlTextReaderPtr,:xmlInputReadCallback,:xmlInputCloseCallback,Ptr{:None},Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-typealias xmlTextReaderLocatorPtr Ptr{:None}
-typealias xmlTextReaderErrorFunc Ptr{:Void}
+@ctypedef xmlTextReaderLocatorPtr Ptr{:None}
+@ctypedef xmlTextReaderErrorFunc Ptr{:Void}
 @c Int32 xmlTextReaderLocatorLineNumber (:xmlTextReaderLocatorPtr,) shlib
 @c Ptr{:xmlChar} xmlTextReaderLocatorBaseURI (:xmlTextReaderLocatorPtr,) shlib
 @c None xmlTextReaderSetErrorHandler (:xmlTextReaderPtr,:xmlTextReaderErrorFunc,Ptr{:None}) shlib
 @c None xmlTextReaderSetStructuredErrorHandler (:xmlTextReaderPtr,:xmlStructuredErrorFunc,Ptr{:None}) shlib
 @c None xmlTextReaderGetErrorHandler (:xmlTextReaderPtr,Ptr{:xmlTextReaderErrorFunc},Ptr{Ptr{:None}}) shlib
-# enum ENUM_xmlSaveOption
+
+# header: /usr/include/libxml2/libxml/xmlregexp.h
+
+# header: /usr/include/libxml2/libxml/xmlsave.h
+# enum xmlSaveOption
+@ctypedef xmlSaveOption Uint32
 const XML_SAVE_FORMAT = 1
 const XML_SAVE_NO_DECL = 2
 const XML_SAVE_NO_EMPTY = 4
@@ -3014,10 +3059,8 @@ const XML_SAVE_AS_XML = 32
 const XML_SAVE_AS_HTML = 64
 const XML_SAVE_WSNONSIG = 128
 # end
-
-typealias xmlSaveOption Int32
-typealias xmlSaveCtxt Void
-typealias xmlSaveCtxtPtr Ptr{:xmlSaveCtxt}
+@ctypedef xmlSaveCtxt Void
+@ctypedef xmlSaveCtxtPtr Ptr{:xmlSaveCtxt}
 @c xmlSaveCtxtPtr xmlSaveToFd (:Int32,Ptr{:Uint8},:Int32) shlib
 @c xmlSaveCtxtPtr xmlSaveToFilename (Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
 @c xmlSaveCtxtPtr xmlSaveToBuffer (:xmlBufferPtr,Ptr{:Uint8},:Int32) shlib
@@ -3028,14 +3071,17 @@ typealias xmlSaveCtxtPtr Ptr{:xmlSaveCtxt}
 @c Int32 xmlSaveClose (:xmlSaveCtxtPtr,) shlib
 @c Int32 xmlSaveSetEscape (:xmlSaveCtxtPtr,:xmlCharEncodingOutputFunc) shlib
 @c Int32 xmlSaveSetAttrEscape (:xmlSaveCtxtPtr,:xmlCharEncodingOutputFunc) shlib
-# enum ENUM_xmlSchemaWhitespaceValueType
+
+# header: /usr/include/libxml2/libxml/xmlschemas.h
+
+# header: /usr/include/libxml2/libxml/xmlschemastypes.h
+# enum xmlSchemaWhitespaceValueType
+@ctypedef xmlSchemaWhitespaceValueType Uint32
 const XML_SCHEMA_WHITESPACE_UNKNOWN = 0
 const XML_SCHEMA_WHITESPACE_PRESERVE = 1
 const XML_SCHEMA_WHITESPACE_REPLACE = 2
 const XML_SCHEMA_WHITESPACE_COLLAPSE = 3
 # end
-
-typealias xmlSchemaWhitespaceValueType Int32
 @c None xmlSchemaInitTypes () shlib
 @c None xmlSchemaCleanupTypes () shlib
 @c xmlSchemaTypePtr xmlSchemaGetPredefinedType (Ptr{:xmlChar},Ptr{:xmlChar}) shlib
@@ -3070,6 +3116,10 @@ typealias xmlSchemaWhitespaceValueType Int32
 @c Int32 xmlSchemaCompareValuesWhtsp (:xmlSchemaValPtr,:xmlSchemaWhitespaceValueType,:xmlSchemaValPtr,:xmlSchemaWhitespaceValueType) shlib
 @c xmlSchemaValPtr xmlSchemaCopyValue (:xmlSchemaValPtr,) shlib
 @c xmlSchemaValType xmlSchemaGetValType (:xmlSchemaValPtr,) shlib
+
+# header: /usr/include/libxml2/libxml/xmlstring.h
+
+# header: /usr/include/libxml2/libxml/xmlunicode.h
 @c Int32 xmlUCSIsAegeanNumbers (:Int32,) shlib
 @c Int32 xmlUCSIsAlphabeticPresentationForms (:Int32,) shlib
 @c Int32 xmlUCSIsArabic (:Int32,) shlib
@@ -3236,8 +3286,12 @@ typealias xmlSchemaWhitespaceValueType Int32
 @c Int32 xmlUCSIsCatZp (:Int32,) shlib
 @c Int32 xmlUCSIsCatZs (:Int32,) shlib
 @c Int32 xmlUCSIsCat (:Int32,Ptr{:Uint8}) shlib
-typealias xmlTextWriter Void
-typealias xmlTextWriterPtr Ptr{:xmlTextWriter}
+
+# header: /usr/include/libxml2/libxml/xmlversion.h
+
+# header: /usr/include/libxml2/libxml/xmlwriter.h
+@ctypedef xmlTextWriter Void
+@ctypedef xmlTextWriterPtr Ptr{:xmlTextWriter}
 @c xmlTextWriterPtr xmlNewTextWriter (:xmlOutputBufferPtr,) shlib
 @c xmlTextWriterPtr xmlNewTextWriterFilename (Ptr{:Uint8},:Int32) shlib
 @c xmlTextWriterPtr xmlNewTextWriterMemory (:xmlBufferPtr,:Int32) shlib
@@ -3317,6 +3371,10 @@ typealias xmlTextWriterPtr Ptr{:xmlTextWriter}
 @c Int32 xmlTextWriterSetIndent (:xmlTextWriterPtr,:Int32) shlib
 @c Int32 xmlTextWriterSetIndentString (:xmlTextWriterPtr,Ptr{:xmlChar}) shlib
 @c Int32 xmlTextWriterFlush (:xmlTextWriterPtr,) shlib
+
+# header: /usr/include/libxml2/libxml/xpath.h
+
+# header: /usr/include/libxml2/libxml/xpathInternals.h
 @c Int32 xmlXPathPopBoolean (:xmlXPathParserContextPtr,) shlib
 @c Float64 xmlXPathPopNumber (:xmlXPathParserContextPtr,) shlib
 @c Ptr{:xmlChar} xmlXPathPopString (:xmlXPathParserContextPtr,) shlib
@@ -3434,8 +3492,10 @@ typealias xmlTextWriterPtr Ptr{:xmlTextWriter}
 @c None xmlXPathRoundFunction (:xmlXPathParserContextPtr,:Int32) shlib
 @c None xmlXPathBooleanFunction (:xmlXPathParserContextPtr,:Int32) shlib
 @c None xmlXPathNodeSetFreeNs (:xmlNsPtr,) shlib
-typealias xmlLocationSet Void
-typealias xmlLocationSetPtr Ptr{:xmlLocationSet}
+
+# header: /usr/include/libxml2/libxml/xpointer.h
+@ctypedef xmlLocationSet Void
+@ctypedef xmlLocationSetPtr Ptr{:xmlLocationSet}
 @c xmlLocationSetPtr xmlXPtrLocationSetCreate (:xmlXPathObjectPtr,) shlib
 @c None xmlXPtrFreeLocationSet (:xmlLocationSetPtr,) shlib
 @c xmlLocationSetPtr xmlXPtrLocationSetMerge (:xmlLocationSetPtr,:xmlLocationSetPtr) shlib
@@ -3457,3 +3517,4 @@ typealias xmlLocationSetPtr Ptr{:xmlLocationSet}
 @c None xmlXPtrRangeToFunction (:xmlXPathParserContextPtr,:Int32) shlib
 @c xmlNodePtr xmlXPtrBuildNodeList (:xmlXPathObjectPtr,) shlib
 @c None xmlXPtrEvalRangePredicate (:xmlXPathParserContextPtr,) shlib
+
