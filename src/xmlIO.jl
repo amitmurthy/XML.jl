@@ -1,0 +1,54 @@
+# Julia wrapper for header: /usr/include/libxml2/libxml/xmlIO.h
+# Automatically generated using Clang.jl wrap_c, version 0.0.0
+
+@c None xmlCleanupInputCallbacks () shlib
+@c Int32 xmlPopInputCallbacks () shlib
+@c None xmlRegisterDefaultInputCallbacks () shlib
+@c xmlParserInputBufferPtr xmlAllocParserInputBuffer (:xmlCharEncoding,) shlib
+@c xmlParserInputBufferPtr xmlParserInputBufferCreateFilename (Ptr{:Uint8},:xmlCharEncoding) shlib
+@c xmlParserInputBufferPtr xmlParserInputBufferCreateFile (Ptr{:FILE},:xmlCharEncoding) shlib
+@c xmlParserInputBufferPtr xmlParserInputBufferCreateFd (:Int32,:xmlCharEncoding) shlib
+@c xmlParserInputBufferPtr xmlParserInputBufferCreateMem (Ptr{:Uint8},:Int32,:xmlCharEncoding) shlib
+@c xmlParserInputBufferPtr xmlParserInputBufferCreateStatic (Ptr{:Uint8},:Int32,:xmlCharEncoding) shlib
+@c xmlParserInputBufferPtr xmlParserInputBufferCreateIO (:xmlInputReadCallback,:xmlInputCloseCallback,Ptr{:None},:xmlCharEncoding) shlib
+@c Int32 xmlParserInputBufferRead (:xmlParserInputBufferPtr,:Int32) shlib
+@c Int32 xmlParserInputBufferGrow (:xmlParserInputBufferPtr,:Int32) shlib
+@c Int32 xmlParserInputBufferPush (:xmlParserInputBufferPtr,:Int32,Ptr{:Uint8}) shlib
+@c None xmlFreeParserInputBuffer (:xmlParserInputBufferPtr,) shlib
+@c Ptr{:Uint8} xmlParserGetDirectory (Ptr{:Uint8},) shlib
+@c Int32 xmlRegisterInputCallbacks (:xmlInputMatchCallback,:xmlInputOpenCallback,:xmlInputReadCallback,:xmlInputCloseCallback) shlib
+@c xmlParserInputBufferPtr __xmlParserInputBufferCreateFilename (Ptr{:Uint8},:xmlCharEncoding) shlib
+@c None xmlCleanupOutputCallbacks () shlib
+@c None xmlRegisterDefaultOutputCallbacks () shlib
+@c xmlOutputBufferPtr xmlAllocOutputBuffer (:xmlCharEncodingHandlerPtr,) shlib
+@c xmlOutputBufferPtr xmlOutputBufferCreateFilename (Ptr{:Uint8},:xmlCharEncodingHandlerPtr,:Int32) shlib
+@c xmlOutputBufferPtr xmlOutputBufferCreateFile (Ptr{:FILE},:xmlCharEncodingHandlerPtr) shlib
+@c xmlOutputBufferPtr xmlOutputBufferCreateBuffer (:xmlBufferPtr,:xmlCharEncodingHandlerPtr) shlib
+@c xmlOutputBufferPtr xmlOutputBufferCreateFd (:Int32,:xmlCharEncodingHandlerPtr) shlib
+@c xmlOutputBufferPtr xmlOutputBufferCreateIO (:xmlOutputWriteCallback,:xmlOutputCloseCallback,Ptr{:None},:xmlCharEncodingHandlerPtr) shlib
+@c Int32 xmlOutputBufferWrite (:xmlOutputBufferPtr,:Int32,Ptr{:Uint8}) shlib
+@c Int32 xmlOutputBufferWriteString (:xmlOutputBufferPtr,Ptr{:Uint8}) shlib
+@c Int32 xmlOutputBufferWriteEscape (:xmlOutputBufferPtr,Ptr{:xmlChar},:xmlCharEncodingOutputFunc) shlib
+@c Int32 xmlOutputBufferFlush (:xmlOutputBufferPtr,) shlib
+@c Int32 xmlOutputBufferClose (:xmlOutputBufferPtr,) shlib
+@c Int32 xmlRegisterOutputCallbacks (:xmlOutputMatchCallback,:xmlOutputOpenCallback,:xmlOutputWriteCallback,:xmlOutputCloseCallback) shlib
+@c xmlOutputBufferPtr __xmlOutputBufferCreateFilename (Ptr{:Uint8},:xmlCharEncodingHandlerPtr,:Int32) shlib
+@c None xmlRegisterHTTPPostCallbacks () shlib
+@c xmlParserInputPtr xmlCheckHTTPInput (:xmlParserCtxtPtr,:xmlParserInputPtr) shlib
+@c xmlParserInputPtr xmlNoNetExternalEntityLoader (Ptr{:Uint8},Ptr{:Uint8},:xmlParserCtxtPtr) shlib
+@c Ptr{:xmlChar} xmlNormalizeWindowsPath (Ptr{:xmlChar},) shlib
+@c Int32 xmlCheckFilename (Ptr{:Uint8},) shlib
+@c Int32 xmlFileMatch (Ptr{:Uint8},) shlib
+@c Ptr{:None} xmlFileOpen (Ptr{:Uint8},) shlib
+@c Int32 xmlFileRead (Ptr{:None},Ptr{:Uint8},:Int32) shlib
+@c Int32 xmlFileClose (Ptr{:None},) shlib
+@c Int32 xmlIOHTTPMatch (Ptr{:Uint8},) shlib
+@c Ptr{:None} xmlIOHTTPOpen (Ptr{:Uint8},) shlib
+@c Ptr{:None} xmlIOHTTPOpenW (Ptr{:Uint8},:Int32) shlib
+@c Int32 xmlIOHTTPRead (Ptr{:None},Ptr{:Uint8},:Int32) shlib
+@c Int32 xmlIOHTTPClose (Ptr{:None},) shlib
+@c Int32 xmlIOFTPMatch (Ptr{:Uint8},) shlib
+@c Ptr{:None} xmlIOFTPOpen (Ptr{:Uint8},) shlib
+@c Int32 xmlIOFTPRead (Ptr{:None},Ptr{:Uint8},:Int32) shlib
+@c Int32 xmlIOFTPClose (Ptr{:None},) shlib
+
