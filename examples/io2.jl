@@ -10,6 +10,13 @@ module io2
 
 include("../src/libXML2.jl")
 
+import libXML2.xmlNewDoc
+import libXML2.xmlNodeSetContent
+import libXML2.xmlDocSetRootElement
+import libXML2.xmlDocDumpFormatMemory
+import libXML2.xmlNewNode
+
+
 doc = xmlNewDoc("1.0")
 n = xmlNewNode(C_NULL, "root")
 xmlNodeSetContent(n, "content")
