@@ -4,12 +4,9 @@
 
 
 macro c(ret_type, func, arg_types, lib)
-  local _arg_types = Expr(:tuple, [a for a in arg_types.args]...)
-  local _ret_type = ret_type
-  local _args_in = Any[ symbol(string('a',x)) for x in 1:length(_arg_types.args) ]
-  local _lib = lib
+  local args_in = Any[ symbol(string('a',x)) for x in 1:length(arg_types.args) ]
   quote
-    $(esc(func))($(_args_in...)) = ccall( ($(string(func)), $(Expr(:quote, _lib)) ), $_ret_type, $_arg_types, $(_args_in...) )
+    $(esc(func))($(args_in...)) = ccall( ($(string(func)), $(Expr(:quote, lib)) ), $ret_type, $arg_types, $(args_in...) )
   end
 end
 
