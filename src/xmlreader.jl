@@ -1,89 +1,89 @@
 # Julia wrapper for header: /usr/include/libxml2/libxml/xmlreader.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-@c xmlTextReaderPtr xmlNewTextReader (:xmlParserInputBufferPtr,Ptr{:Uint8}) shlib
-@c xmlTextReaderPtr xmlNewTextReaderFilename (Ptr{:Uint8},) shlib
-@c None xmlFreeTextReader (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderSetup (:xmlTextReaderPtr,:xmlParserInputBufferPtr,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c Int32 xmlTextReaderRead (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderReadInnerXml (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderReadOuterXml (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderReadString (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderReadAttributeValue (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderAttributeCount (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderDepth (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderHasAttributes (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderHasValue (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderIsDefault (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderIsEmptyElement (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderNodeType (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderQuoteChar (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderReadState (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderIsNamespaceDecl (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstBaseUri (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstLocalName (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstName (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstNamespaceUri (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstPrefix (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstXmlLang (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstString (:xmlTextReaderPtr,Ptr{:xmlChar}) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstValue (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderBaseUri (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderLocalName (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderName (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderNamespaceUri (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderPrefix (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderXmlLang (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderValue (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderClose (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderGetAttributeNo (:xmlTextReaderPtr,:Int32) shlib
-@c Ptr{:xmlChar} xmlTextReaderGetAttribute (:xmlTextReaderPtr,Ptr{:xmlChar}) shlib
-@c Ptr{:xmlChar} xmlTextReaderGetAttributeNs (:xmlTextReaderPtr,Ptr{:xmlChar},Ptr{:xmlChar}) shlib
-@c xmlParserInputBufferPtr xmlTextReaderGetRemainder (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderLookupNamespace (:xmlTextReaderPtr,Ptr{:xmlChar}) shlib
-@c Int32 xmlTextReaderMoveToAttributeNo (:xmlTextReaderPtr,:Int32) shlib
-@c Int32 xmlTextReaderMoveToAttribute (:xmlTextReaderPtr,Ptr{:xmlChar}) shlib
-@c Int32 xmlTextReaderMoveToAttributeNs (:xmlTextReaderPtr,Ptr{:xmlChar},Ptr{:xmlChar}) shlib
-@c Int32 xmlTextReaderMoveToFirstAttribute (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderMoveToNextAttribute (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderMoveToElement (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderNormalization (:xmlTextReaderPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstEncoding (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderSetParserProp (:xmlTextReaderPtr,:Int32,:Int32) shlib
-@c Int32 xmlTextReaderGetParserProp (:xmlTextReaderPtr,:Int32) shlib
-@c xmlNodePtr xmlTextReaderCurrentNode (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderGetParserLineNumber (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderGetParserColumnNumber (:xmlTextReaderPtr,) shlib
-@c xmlNodePtr xmlTextReaderPreserve (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderPreservePattern (:xmlTextReaderPtr,Ptr{:xmlChar},Ptr{Ptr{:xmlChar}}) shlib
-@c xmlDocPtr xmlTextReaderCurrentDoc (:xmlTextReaderPtr,) shlib
-@c xmlNodePtr xmlTextReaderExpand (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderNext (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderNextSibling (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderIsValid (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderRelaxNGValidate (:xmlTextReaderPtr,Ptr{:Uint8}) shlib
-@c Int32 xmlTextReaderRelaxNGSetSchema (:xmlTextReaderPtr,:xmlRelaxNGPtr) shlib
-@c Int32 xmlTextReaderSchemaValidate (:xmlTextReaderPtr,Ptr{:Uint8}) shlib
-@c Int32 xmlTextReaderSchemaValidateCtxt (:xmlTextReaderPtr,:xmlSchemaValidCtxtPtr,:Int32) shlib
-@c Int32 xmlTextReaderSetSchema (:xmlTextReaderPtr,:xmlSchemaPtr) shlib
-@c Ptr{:xmlChar} xmlTextReaderConstXmlVersion (:xmlTextReaderPtr,) shlib
-@c Int32 xmlTextReaderStandalone (:xmlTextReaderPtr,) shlib
-@c Int64 xmlTextReaderByteConsumed (:xmlTextReaderPtr,) shlib
-@c xmlTextReaderPtr xmlReaderWalker (:xmlDocPtr,) shlib
-@c xmlTextReaderPtr xmlReaderForDoc (Ptr{:xmlChar},Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c xmlTextReaderPtr xmlReaderForFile (Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c xmlTextReaderPtr xmlReaderForMemory (Ptr{:Uint8},:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c xmlTextReaderPtr xmlReaderForFd (:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c xmlTextReaderPtr xmlReaderForIO (:xmlInputReadCallback,:xmlInputCloseCallback,Ptr{:None},Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c Int32 xmlReaderNewWalker (:xmlTextReaderPtr,:xmlDocPtr) shlib
-@c Int32 xmlReaderNewDoc (:xmlTextReaderPtr,Ptr{:xmlChar},Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c Int32 xmlReaderNewFile (:xmlTextReaderPtr,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c Int32 xmlReaderNewMemory (:xmlTextReaderPtr,Ptr{:Uint8},:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c Int32 xmlReaderNewFd (:xmlTextReaderPtr,:Int32,Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c Int32 xmlReaderNewIO (:xmlTextReaderPtr,:xmlInputReadCallback,:xmlInputCloseCallback,Ptr{:None},Ptr{:Uint8},Ptr{:Uint8},:Int32) shlib
-@c Int32 xmlTextReaderLocatorLineNumber (:xmlTextReaderLocatorPtr,) shlib
-@c Ptr{:xmlChar} xmlTextReaderLocatorBaseURI (:xmlTextReaderLocatorPtr,) shlib
-@c None xmlTextReaderSetErrorHandler (:xmlTextReaderPtr,:xmlTextReaderErrorFunc,Ptr{:None}) shlib
-@c None xmlTextReaderSetStructuredErrorHandler (:xmlTextReaderPtr,:xmlStructuredErrorFunc,Ptr{:None}) shlib
-@c None xmlTextReaderGetErrorHandler (:xmlTextReaderPtr,Ptr{:xmlTextReaderErrorFunc},Ptr{Ptr{:None}}) shlib
+@c xmlTextReaderPtr xmlNewTextReader (xmlParserInputBufferPtr, Ptr{Uint8}) libxml2
+@c xmlTextReaderPtr xmlNewTextReaderFilename (Ptr{Uint8},) libxml2
+@c None xmlFreeTextReader (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderSetup (xmlTextReaderPtr, xmlParserInputBufferPtr, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c Int32 xmlTextReaderRead (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderReadInnerXml (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderReadOuterXml (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderReadString (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderReadAttributeValue (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderAttributeCount (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderDepth (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderHasAttributes (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderHasValue (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderIsDefault (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderIsEmptyElement (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderNodeType (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderQuoteChar (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderReadState (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderIsNamespaceDecl (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstBaseUri (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstLocalName (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstName (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstNamespaceUri (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstPrefix (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstXmlLang (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstString (xmlTextReaderPtr, Ptr{xmlChar}) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstValue (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderBaseUri (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderLocalName (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderName (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderNamespaceUri (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderPrefix (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderXmlLang (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderValue (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderClose (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderGetAttributeNo (xmlTextReaderPtr, Int32) libxml2
+@c Ptr{xmlChar} xmlTextReaderGetAttribute (xmlTextReaderPtr, Ptr{xmlChar}) libxml2
+@c Ptr{xmlChar} xmlTextReaderGetAttributeNs (xmlTextReaderPtr, Ptr{xmlChar}, Ptr{xmlChar}) libxml2
+@c xmlParserInputBufferPtr xmlTextReaderGetRemainder (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderLookupNamespace (xmlTextReaderPtr, Ptr{xmlChar}) libxml2
+@c Int32 xmlTextReaderMoveToAttributeNo (xmlTextReaderPtr, Int32) libxml2
+@c Int32 xmlTextReaderMoveToAttribute (xmlTextReaderPtr, Ptr{xmlChar}) libxml2
+@c Int32 xmlTextReaderMoveToAttributeNs (xmlTextReaderPtr, Ptr{xmlChar}, Ptr{xmlChar}) libxml2
+@c Int32 xmlTextReaderMoveToFirstAttribute (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderMoveToNextAttribute (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderMoveToElement (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderNormalization (xmlTextReaderPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstEncoding (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderSetParserProp (xmlTextReaderPtr, Int32, Int32) libxml2
+@c Int32 xmlTextReaderGetParserProp (xmlTextReaderPtr, Int32) libxml2
+@c xmlNodePtr xmlTextReaderCurrentNode (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderGetParserLineNumber (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderGetParserColumnNumber (xmlTextReaderPtr,) libxml2
+@c xmlNodePtr xmlTextReaderPreserve (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderPreservePattern (xmlTextReaderPtr, Ptr{xmlChar}, Ptr{Ptr{xmlChar}}) libxml2
+@c xmlDocPtr xmlTextReaderCurrentDoc (xmlTextReaderPtr,) libxml2
+@c xmlNodePtr xmlTextReaderExpand (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderNext (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderNextSibling (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderIsValid (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderRelaxNGValidate (xmlTextReaderPtr, Ptr{Uint8}) libxml2
+@c Int32 xmlTextReaderRelaxNGSetSchema (xmlTextReaderPtr, xmlRelaxNGPtr) libxml2
+@c Int32 xmlTextReaderSchemaValidate (xmlTextReaderPtr, Ptr{Uint8}) libxml2
+@c Int32 xmlTextReaderSchemaValidateCtxt (xmlTextReaderPtr, xmlSchemaValidCtxtPtr, Int32) libxml2
+@c Int32 xmlTextReaderSetSchema (xmlTextReaderPtr, xmlSchemaPtr) libxml2
+@c Ptr{xmlChar} xmlTextReaderConstXmlVersion (xmlTextReaderPtr,) libxml2
+@c Int32 xmlTextReaderStandalone (xmlTextReaderPtr,) libxml2
+@c Int64 xmlTextReaderByteConsumed (xmlTextReaderPtr,) libxml2
+@c xmlTextReaderPtr xmlReaderWalker (xmlDocPtr,) libxml2
+@c xmlTextReaderPtr xmlReaderForDoc (Ptr{xmlChar}, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c xmlTextReaderPtr xmlReaderForFile (Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c xmlTextReaderPtr xmlReaderForMemory (Ptr{Uint8}, Int32, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c xmlTextReaderPtr xmlReaderForFd (Int32, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c xmlTextReaderPtr xmlReaderForIO (xmlInputReadCallback, xmlInputCloseCallback, Ptr{None}, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c Int32 xmlReaderNewWalker (xmlTextReaderPtr, xmlDocPtr) libxml2
+@c Int32 xmlReaderNewDoc (xmlTextReaderPtr, Ptr{xmlChar}, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c Int32 xmlReaderNewFile (xmlTextReaderPtr, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c Int32 xmlReaderNewMemory (xmlTextReaderPtr, Ptr{Uint8}, Int32, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c Int32 xmlReaderNewFd (xmlTextReaderPtr, Int32, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c Int32 xmlReaderNewIO (xmlTextReaderPtr, xmlInputReadCallback, xmlInputCloseCallback, Ptr{None}, Ptr{Uint8}, Ptr{Uint8}, Int32) libxml2
+@c Int32 xmlTextReaderLocatorLineNumber (xmlTextReaderLocatorPtr,) libxml2
+@c Ptr{xmlChar} xmlTextReaderLocatorBaseURI (xmlTextReaderLocatorPtr,) libxml2
+@c None xmlTextReaderSetErrorHandler (xmlTextReaderPtr, xmlTextReaderErrorFunc, Ptr{None}) libxml2
+@c None xmlTextReaderSetStructuredErrorHandler (xmlTextReaderPtr, xmlStructuredErrorFunc, Ptr{None}) libxml2
+@c None xmlTextReaderGetErrorHandler (xmlTextReaderPtr, Ptr{xmlTextReaderErrorFunc}, Ptr{Ptr{None}}) libxml2
 

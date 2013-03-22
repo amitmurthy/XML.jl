@@ -1,7 +1,8 @@
 module libXML2
 
-shlib = :libxml2
+libxml2 = :libxml2
 
+include("libXML2_extra.jl")
 include("libXML2_h.jl")
 
 include("tree.jl")

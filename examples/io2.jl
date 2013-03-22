@@ -8,7 +8,7 @@ module io2
 #   <?xml version="1.0"?>
 #   <root>content</root>
 
-include("../src/libXML2.jl")
+require("../src/libXML2.jl")
 
 import libXML2.xmlNewDoc
 import libXML2.xmlNodeSetContent

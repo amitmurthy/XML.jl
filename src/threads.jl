@@ -1,19 +1,19 @@
 # Julia wrapper for header: /usr/include/libxml2/libxml/threads.h
 # Automatically generated using Clang.jl wrap_c, version 0.0.0
 
-@c xmlMutexPtr xmlNewMutex () shlib
-@c None xmlMutexLock (:xmlMutexPtr,) shlib
-@c None xmlMutexUnlock (:xmlMutexPtr,) shlib
-@c None xmlFreeMutex (:xmlMutexPtr,) shlib
-@c xmlRMutexPtr xmlNewRMutex () shlib
-@c None xmlRMutexLock (:xmlRMutexPtr,) shlib
-@c None xmlRMutexUnlock (:xmlRMutexPtr,) shlib
-@c None xmlFreeRMutex (:xmlRMutexPtr,) shlib
-@c None xmlInitThreads () shlib
-@c None xmlLockLibrary () shlib
-@c None xmlUnlockLibrary () shlib
-@c Int32 xmlGetThreadId () shlib
-@c Int32 xmlIsMainThread () shlib
-@c None xmlCleanupThreads () shlib
-@c xmlGlobalStatePtr xmlGetGlobalState () shlib
+@c xmlMutexPtr xmlNewMutex () libxml2
+@c None xmlMutexLock (xmlMutexPtr,) libxml2
+@c None xmlMutexUnlock (xmlMutexPtr,) libxml2
+@c None xmlFreeMutex (xmlMutexPtr,) libxml2
+@c xmlRMutexPtr xmlNewRMutex () libxml2
+@c None xmlRMutexLock (xmlRMutexPtr,) libxml2
+@c None xmlRMutexUnlock (xmlRMutexPtr,) libxml2
+@c None xmlFreeRMutex (xmlRMutexPtr,) libxml2
+@c None xmlInitThreads () libxml2
+@c None xmlLockLibrary () libxml2
+@c None xmlUnlockLibrary () libxml2
+@c Int32 xmlGetThreadId () libxml2
+@c Int32 xmlIsMainThread () libxml2
+@c None xmlCleanupThreads () libxml2
+@c xmlGlobalStatePtr xmlGetGlobalState () libxml2
 
