@@ -50,7 +50,7 @@ end
 @ctypedef xmlLocationSet Void
 @ctypedef xmlModule Void
 @ctypedef xmlMutex Void
-@ctypedef xmlNode Void
+#@ctypedef xmlNode Void
 @ctypedef xmlNodePtr Ptr{xmlNode}
 @ctypedef xmlNodeSet Void
 @ctypedef xmlNotation Void
