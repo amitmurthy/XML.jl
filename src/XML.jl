@@ -25,12 +25,6 @@ type XMLDoc
         new(doc, root)
     end
 end
-XMLDoc
-
-### Helpers ###################################################################
-### Not officially part of DOM1, but de-facto necessary
-
-parse(filename::ASCIIString) = XMLDoc(filename)
 
 ###############################################################################
 #                                                                             #
