@@ -3,19 +3,29 @@ module dom
 require("XML_impl.jl")
 
 ## Imports
-using .lxml
+using lxml
 
 ## Wrapper type declaration
 type XMLDoc
     doc::Ptr{xmlDoc}
     root::Ptr{xmlNode}
     
-    function XMLDoc(filename)
-        doc = lxml.parseFile(filename)
+    function XMLDoc(; filename = None, xmlstring = None)
+        if (filename != None && xmlstring != None)
+            error("Please use only filename or xmlstring, not both")
+        end
+        if (filename != None)
+            doc = lxml.parseFile(filename)
+        elseif (xmlstring != None)
+            doc = lxml.parseString(xmlstring)
+        else
+            error("Please specify filename or xmlstring keyword argument")
+        end
         root = lxml.docRoot(doc)
         new(doc, root)
     end
 end
+XMLDoc
 
 ### Helpers ###################################################################
 ### Not officially part of DOM1, but de-facto necessary

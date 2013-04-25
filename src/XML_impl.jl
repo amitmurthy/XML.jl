@@ -43,15 +43,23 @@ childNodes(node) = begin
     next = lxml.xchildren(node)
     while ( next != C_NULL )
         push!(nn, next)
-        next = lxml.xnext(node)
+        next = lxml.xnext(next)
     end
     nn
     end
 
+function parseString(xmlstrdoc)
+    d = xmlParseMemory(xmlstrdoc, length(xmlstrdoc))
+    if (d != C_NULL) return d
+    else error("Unable to parse string") end
+end
+    
+
 function parseFile(fname)
-  d = xmlReadFile(fname, C_NULL, 0)
-  if(d != C_NULL) return d
-  else error("Unable to parse file: $fname") end
+    d = xmlReadFile(fname, C_NULL, 0)
+    if(d != C_NULL) return d
+    else error("Unable to parse file: $fname") 
+    end
 end
 
 function docRoot(doc::Ptr{xmlDoc})
