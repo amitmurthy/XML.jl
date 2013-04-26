@@ -26,3 +26,4 @@ doc = dom.XMLDoc(xmlstring = tstr)
 childnodes = dom.childNodes(doc.root)
 
 @test length(childnodes) == 3
+@test lxml.xname(lxml.xsearch(doc.root, "dest", true)[1]) == "dest"

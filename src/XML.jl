@@ -96,7 +96,7 @@ __nt = (Int=>Symbol)[ eval(NT.(nm)) => nm
 NT!(I::Int) = __nt[I]
 
 nodeValue(node::Node) = begin
-    nt = lxml.nodeType(node.ptr)
+    nt = lxml.nodeType(node)
     if (nt == NT.ATTRIBUTE)
         return lxml.xprop(node)
     elseif (nt == NT.TEXT)

@@ -1,5 +1,6 @@
 #include "libxml/tree.h"
 #include "libxml/xmlstring.h"
+#include "libxml/list.h"
 
 const void* getNodeName(xmlNode* n) { return n->name; }
 const void* getNodeChildrenPtr(xmlNode* n) { return n->children; }
@@ -12,15 +13,27 @@ const void* getNodeAttrs(xmlNode* n) { return n->properties; }
 const size_t getNodeType(xmlNode* n) { return n->type; } 
 
 
-/*
-typedef void (*DFScallback)(xmlNode* out, void* data);
+typedef int (*DFScallback)(void* data, xmlNode* out);
 
-void DFSnode(xmlNode* node, const xmlChar* name, void* data, DFScallback* cb)
+void nodeDFS(xmlNode* root, const xmlChar* name, void* data, DFScallback cb)
 {
-  next = node;
-  while (next != NULL)
+  xmlNode* next = root;
+  while (1)
   {
-    while((down = next->children) != NULL)
-      if(down->
-  
-*/
+    if (xmlStrcmp(next->name, name) == 0)
+      if (cb(data, next) != 1) return;
+
+    if (next->children != NULL) 
+      next = next->children;
+    else
+    {
+      while (next->next == NULL)
+      {
+        if (next == root)
+          return;
+        next = next->parent;
+      }
+      next = next->next;
+    }
+  }
+}
