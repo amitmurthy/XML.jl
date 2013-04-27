@@ -1,11 +1,21 @@
 module dom
 
 require("XML_impl.jl")
-
-## Imports
 using lxml
 
-## Wrapper type declaration
+###############################################################################
+#                                                                             #
+# DM Core Level 1 Interface Exports                                           #
+#                                                                             #
+###############################################################################
+
+### Node API (flat)
+export  nodeName, nodeValue, nodeType, parentNode, childNodes, firstChild,
+        lastChild, previousSibling, nextSibling, attributes, ownerDocument,
+        insertBefore, replaceChild, removeChild, appendChild, hasChildNodes,
+        cloneNode
+
+### Document wrapper type declaration #########################################
 type XMLDoc
     doc::Ptr{xmlDoc}
     root::Ptr{xmlNode}
@@ -26,17 +36,6 @@ type XMLDoc
     end
 end
 
-###############################################################################
-#                                                                             #
-# DOM Core Level 1 Interface                                                  #
-#                                                                             #
-###############################################################################
-
-### Node API (flat)
-export  nodeName, nodeValue, nodeType, parentNode, childNodes, firstChild,
-        lastChild, previousSibling, nextSibling, attributes, ownerDocument,
-        insertBefore, replaceChild, removeChild, appendChild, hasChildNodes,
-        cloneNode
 
 ### ExceptionCode #############################################################
 
@@ -166,31 +165,27 @@ cloneNode(node::Node, deep::Bool) = begin
     lxml.xmlCopyNode(node, deep)
     end
 
-TODO = """
 ### Document Interface ########################################################
 
-createElement(doc::Document, tagName::ASCIIString)
-doctype(doc::Document)
-implementation(doc::Document)
-documentElement(doc::Document)
-createDocumentFragment(doc::Document)
-createTextNode(data::ASCIIString)
-createComment(data::ASCIIString)
-createCDATASection(d::Document, data::ASCIIString)
-createProcessingInstruction(target::ASCIIString, data::ASCIIString)
-createAttribute(name::ASCIIString)
-createEntityReference(name::ASCIIString)
-getElementsByTagname(doc::Document, tagname::ASCIIString)
+# createElement(doc::Document, tagName::ASCIIString)
+# doctype(doc::Document)
+# implementation(doc::Document)
+# documentElement(doc::Document)
+# createDocumentFragment(doc::Document)
+# createTextNode(data::ASCIIString)
+# createComment(data::ASCIIString)
+# createCDATASection(d::Document, data::ASCIIString)
+# createProcessingInstruction(target::ASCIIString, data::ASCIIString)
+# createAttribute(name::ASCIIString)
+# createEntityReference(name::ASCIIString)
 
-# Helpers
-
-parse(fname::ASCIIString) 
+#getElementsByTagname(doc::Document, tagname::ASCIIString) = lxml.
 
 ### NodeList Interface
 
 abstract NodeList
-length(n::NodeList)
-item(i::Culong) = item(DOMImpl, i)
+length(n::NodeList) = lxml.nodelistLength(n)
+item(n::NodeList, i::Culong) = lxml.nodelistItem(n, i)
 
 
 
@@ -221,31 +216,30 @@ item(i::Culong) = item(DOMImpl, i)
 
 ### Attr Interface
 
-abstract Attr
-
-name(node::Attr) = name(domImpl, name)
-specified(node::Attr) = specified(domImpl, node)
-value(node::Attr) = value(domImpl, node)
-
-### Element Interface #########################################################
-
-abstract Element
-
-tagName(node::Element) = tagName(domImpl, node)
-getAttribute(node::Element, name::ASCIIString) = 
-  getAttribute(domImpl, node::Element, name::ASCIIString)
-setAttribute(node::Element, name::ASCIIString, value::ASCIIString) =
-  setAttribute(domImpl, node, name, value)
-removeAttribute(node::Element, name::ASCIIString) =
-  removeAttribute(domImpl, node, name)
-getAttributeNode(node::Element, name::ASCIIString) =
-  getAttributeNode(domImpl, node::Element, name::ASCIIString)
-setAttributeNode(node::Element, newAttr::Attr) = 
-  setAttributeNode(domImpl, node, newAttr)
-removeAttributeNode(node::Element, oldAttr) =
-  removeAttributeNode(domImpl, node, oldAttr)
-getElementsByTagName(node::Element) = getElementsByTagName(domImpl, node)
-normalize(node::Element) = normalize(domImpl, node)
-"""  
+# abstract Attr
+# 
+# name(node::Attr) = name(domImpl, name)
+# specified(node::Attr) = specified(domImpl, node)
+# value(node::Attr) = value(domImpl, node)
+# 
+# ### Element Interface #########################################################
+# 
+# abstract Element
+# 
+# tagName(node::Element) = tagName(domImpl, node)
+# getAttribute(node::Element, name::ASCIIString) = 
+#   getAttribute(domImpl, node::Element, name::ASCIIString)
+# setAttribute(node::Element, name::ASCIIString, value::ASCIIString) =
+#   setAttribute(domImpl, node, name, value)
+# removeAttribute(node::Element, name::ASCIIString) =
+#   removeAttribute(domImpl, node, name)
+# getAttributeNode(node::Element, name::ASCIIString) =
+#   getAttributeNode(domImpl, node::Element, name::ASCIIString)
+# setAttributeNode(node::Element, newAttr::Attr) = 
+#   setAttributeNode(domImpl, node, newAttr)
+# removeAttributeNode(node::Element, oldAttr) =
+#   removeAttributeNode(domImpl, node, oldAttr)
+# getElementsByTagName(node::Element) = getElementsByTagName(domImpl, node)
+# normalize(node::Element) = normalize(domImpl, node)
 
 end # xml
