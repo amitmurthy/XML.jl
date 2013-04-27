@@ -1,9 +1,8 @@
-
-module lxml
+module lx
 
 export xmlDoc, xmlNode
 
-include("libXML2.jl")
+include("../deps/jlw/libXML2.jl")
 
 macro xfree(wrf, rlf)
     @gensym _p
@@ -34,16 +33,16 @@ xattr(n)   =   ccall( (:getNodeAttrs, "libxml2helper"), Ptr{xmlNode}, (Ptr{xmlNo
 xfindtag(n,tn) = ccall( (:findNodeByTag, "libxml2helper"), Ptr{xmlNode}, (Ptr{xmlNode},Ptr{Uint8}), n, tn)
 
 xprop(n) = xprop(n, xname(n))
-xprop(n, attrName) = @xfree bytestring lxml.xmlGetProp(n, attrName)
+xprop(n, attrName) = @xfree bytestring lx.xmlGetProp(n, attrName)
 
-xnodestring(n) = @xfree bytestring lxml.xmlNodeListGetString(xdoc(n), n, 0)
+xnodestring(n) = @xfree bytestring lx.xmlNodeListGetString(xdoc(n), n, 0)
 
 childNodes(node) = begin
     nn = Ptr{xmlNode}[]
-    next = lxml.xchildren(node)
+    next = lx.xchildren(node)
     while ( next != C_NULL )
         push!(nn, next)
-        next = lxml.xnext(next)
+        next = lx.xnext(next)
     end
     nn
     end
@@ -85,4 +84,4 @@ function xsearch(n, tag, findfirst)
   list
 end
 
-end # lxml
+end # lx

@@ -1,3 +1,4 @@
+
 import Base.Test.@test
 
 ########
@@ -19,11 +20,12 @@ tstr = """
 </doc>"""
 
 require("../src/XML.jl")
+using .lx, .dom
 
-lxml.xmlKeepBlanksDefault(0)
+lx.xmlKeepBlanksDefault(0)
 doc = dom.XMLDoc(xmlstring = tstr)
 
 childnodes = dom.childNodes(doc.root)
 
 @test length(childnodes) == 3
-@test lxml.xname(lxml.xsearch(doc.root, "dest", false)[1]) == "dest"
+@test lx.xname(lx.xsearch(doc.root, "dest", false)[1]) == "dest"

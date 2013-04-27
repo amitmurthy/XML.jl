@@ -1,7 +1,7 @@
 module dom
 
-require("XML_impl.jl")
-using lxml
+require("lxlite.jl")
+using lx
 
 ###############################################################################
 #                                                                             #
@@ -25,13 +25,13 @@ type XMLDoc
             error("Please use only filename or xmlstring, not both")
         end
         if (filename != None)
-            doc = lxml.parseFile(filename)
+            doc = lx.parseFile(filename)
         elseif (xmlstring != None)
-            doc = lxml.parseString(xmlstring)
+            doc = lx.parseString(xmlstring)
         else
             error("Please specify filename or xmlstring keyword argument")
         end
-        root = lxml.docRoot(doc)
+        root = lx.docRoot(doc)
         new(doc, root)
     end
 end
@@ -64,13 +64,13 @@ end
 
 ### Nodes and derived ##########################################################
 
-abstract Node
-abstract Document <: Node
-abstract Element <: Node
-abstract Attr <: Node
+abstract AbstractNode
+abstract Document <: AbstractNode
+abstract Element <: AbstractNode
+abstract Attr <: AbstractNode
 
-type _Node <: Node
-    ptr::Ptr{Void}
+type Node <: AbstractNode
+    ptr::Ptr{lx.xmlNode}
 end
 
 ### Node Interface #############################################################
@@ -95,13 +95,13 @@ __nt = (Int=>Symbol)[ eval(NT.(nm)) => nm
 NT!(I::Int) = __nt[I]
 
 nodeValue(node::Node) = begin
-    nt = lxml.nodeType(node)
+    nt = lx.nodeType(node)
     if (nt == NT.ATTRIBUTE)
-        return lxml.xprop(node)
+        return lx.xprop(node)
     elseif (nt == NT.TEXT)
-        return lxml.xnodestring(node)
+        return lx.xnodestring(node)
     elseif (nt == NT.CDATASECTION)
-        return lxml.xnodestring(node)
+        return lx.xnodestring(node)
     elseif (nt == NT.PROCESSING_INSTRUCTION)
         error("ProcessingInstruction not yet implemented") # TODO
     elseif (nt == NT.COMMENT)
@@ -110,17 +110,17 @@ nodeValue(node::Node) = begin
     end
 
 nodeName(node::Node) = begin
-    nt = lxml.nodeType(node.ptr)
+    nt = lx.nodeType(node.ptr)
     if (nt == NT.ELEMENT)
-        return lxml.xnodename(node)
+        return lx.xnodename(node)
     elseif (nt == NT.ATTRIBUTE)
-        return lxml.xnodename(node)
+        return lx.xnodename(node)
     elseif (nt == NT.TEXT)
         return "#text"
     elseif (nt == NT.CDATASECTION)
         return "#cdata-section"
     elseif (nt == NT.ENTITY_REFERENCE)
-        return lxml.xnodename(node) # TODO
+        return lx.xnodename(node) # TODO
     elseif (nt == NT.ENTITY)
         # TODO
     elseif (nt == NT.PROCESSING_INSTRUCTION)
@@ -130,39 +130,39 @@ nodeName(node::Node) = begin
     elseif (nt == NT.DOCUMENT)
         return "#document"
     elseif (nt == NT.DOCUMENT_TYPE)
-        return lxml.xnodename(node) # TODO
+        return lx.xnodename(node) # TODO
     elseif (nt == NT.DOCUMENT_FRAGMENT)
         return "#document-fragment"
     elseif (nt == NT.NOTATION)
-        return lxml.xnodename(node)
+        return lx.xnodename(node)
     else
         error("Unknown node type: $nt")
     end
     end
 
-nodeType(node::Node) = lxml.xtype(node)
-parentNode(node::Node) = lxml.xparent(node)
-childNodes(node) = lxml.childNodes(node)
-firstChild(node::Node) = lxml.xmlFirstElementChild(node)
-lastChild(node::Node) = lxml.xmlLastElementChild(node)
-previousSibling(node::Node) = lxml.xmlPreviousElementSibling(node)
-nextSibling(node::Node) = lxml.xmlNextElementSibling(node)
-attributes(node::Node) = lxml.xchildren(lxml.xattr(node))
-ownerDocument(node::Node) = lxml.xdoc(node)
-insertBefore(newChild::Node, refChild::Node) = lxml.xmlAddPrevSibling(refChild, newChild)
-replaceChild(newChild::Node, oldChild::Node) = lxml.xmlReplaceNode(oldChild, newChild)
+nodeType(node::Node) = lx.xtype(node)
+parentNode(node::Node) = lx.xparent(node)
+childNodes(node) = lx.childNodes(node)
+firstChild(node::Node) = lx.xmlFirstElementChild(node)
+lastChild(node::Node) = lx.xmlLastElementChild(node)
+previousSibling(node::Node) = lx.xmlPreviousElementSibling(node)
+nextSibling(node::Node) = lx.xmlNextElementSibling(node)
+attributes(node::Node) = lx.xchildren(lx.xattr(node))
+ownerDocument(node::Node) = lx.xdoc(node)
+insertBefore(newChild::Node, refChild::Node) = lx.xmlAddPrevSibling(refChild, newChild)
+replaceChild(newChild::Node, oldChild::Node) = lx.xmlReplaceNode(oldChild, newChild)
 removeChild(node::Node, oldChild::Node) = begin
-    lxml.xmlUnlinkNode(oldChild)
-    lxml.xmlFreeNode(oldChild)
+    lx.xmlUnlinkNode(oldChild)
+    lx.xmlFreeNode(oldChild)
     end
 appendChild(node::Node, newChild::Node) = begin
-    (lxml.xmlAddChild(node, newChild) == NULL) &&
+    (lx.xmlAddChild(node, newChild) == NULL) &&
         error("Unable to append child node")
     end
-hasChildNodes(node::Node) = (lxml.xchildren(node) != NULL)
+hasChildNodes(node::Node) = (lx.xchildren(node) != NULL)
 cloneNode(node::Node, deep::Bool) = begin
     # TODO
-    lxml.xmlCopyNode(node, deep)
+    lx.xmlCopyNode(node, deep)
     end
 
 ### Document Interface ########################################################
@@ -179,40 +179,13 @@ cloneNode(node::Node, deep::Bool) = begin
 # createAttribute(name::ASCIIString)
 # createEntityReference(name::ASCIIString)
 
-#getElementsByTagname(doc::Document, tagname::ASCIIString) = lxml.
+#getElementsByTagname(doc::Document, tagname::ASCIIString) = lx.
 
-### NodeList Interface
+### NodeList Interface ########################################################
 
 abstract NodeList
-length(n::NodeList) = lxml.nodelistLength(n)
-item(n::NodeList, i::Culong) = lxml.nodelistItem(n, i)
-
-
-
-### CharacterData Interface: not yet supported ################################
-
-#interface CharacterData : Node {
-#           attribute  DOMString            data;
-#                                 // raises(DOMException) on setting
-#                                 // raises(DOMException) on retrieval
-#  readonly attribute  unsigned long        length;
-#  DOMString                 substringData(in unsigned long offset, 
-#                                          in unsigned long count)
-#                                          raises(DOMException);
-#  void                      appendData(in DOMString arg)
-#                                       raises(DOMException);
-#  void                      insertData(in unsigned long offset, 
-#                                       in DOMString arg)
-#                                       raises(DOMException);
-#  void                      deleteData(in unsigned long offset, 
-#                                       in unsigned long count)
-#                                       raises(DOMException);
-#  void                      replaceData(in unsigned long offset, 
-#                                        in unsigned long count, 
-#                                        in DOMString arg)
-#                                        raises(DOMException);
-#};
-
+length(n::NodeList) = lx.nodelistLength(n)
+item(n::NodeList, i::Culong) = lx.nodelistItem(n, i)
 
 ### Attr Interface
 
@@ -241,5 +214,30 @@ item(n::NodeList, i::Culong) = lxml.nodelistItem(n, i)
 #   removeAttributeNode(domImpl, node, oldAttr)
 # getElementsByTagName(node::Element) = getElementsByTagName(domImpl, node)
 # normalize(node::Element) = normalize(domImpl, node)
+
+### CharacterData Interface: not yet supported ################################
+
+#interface CharacterData : Node {
+#           attribute  DOMString            data;
+#                                 // raises(DOMException) on setting
+#                                 // raises(DOMException) on retrieval
+#  readonly attribute  unsigned long        length;
+#  DOMString                 substringData(in unsigned long offset, 
+#                                          in unsigned long count)
+#                                          raises(DOMException);
+#  void                      appendData(in DOMString arg)
+#                                       raises(DOMException);
+#  void                      insertData(in unsigned long offset, 
+#                                       in DOMString arg)
+#                                       raises(DOMException);
+#  void                      deleteData(in unsigned long offset, 
+#                                       in unsigned long count)
+#                                       raises(DOMException);
+#  void                      replaceData(in unsigned long offset, 
+#                                        in unsigned long count, 
+#                                        in DOMString arg)
+#                                        raises(DOMException);
+#};
+
 
 end # xml
