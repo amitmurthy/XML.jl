@@ -15,13 +15,13 @@ const size_t getNodeType(xmlNode* n) { return n->type; }
 
 typedef int (*DFScallback)(void* data, xmlNode* out);
 
-void nodeDFS(xmlNode* root, const xmlChar* name, void* data, DFScallback cb)
+void nodeDFS(xmlNode* root, const xmlChar* name, void* data, DFScallback cb, int findfirst)
 {
   xmlNode* next = root;
   while (1)
   {
     if (xmlStrcmp(next->name, name) == 0)
-      if (cb(data, next) != 1) return;
+      if (cb(data, next) && findfirst) return;
 
     if (next->children != NULL) 
       next = next->children;

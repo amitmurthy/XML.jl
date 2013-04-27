@@ -68,21 +68,21 @@ function docRoot(doc::Ptr{xmlDoc})
   return r
 end
 
-nodeName(n::Ptr{xmlNode}) = (n==C_NULL) ? error("Null node pointer") : bytestring(name(n))
+nodeName(n::Ptr{xmlNode}) = (n==C_NULL) ? error("Null node pointer") : bytestring(xname(n))
 findTag(n::Ptr{xmlNode}, tn::ASCIIString) = xfindtag(n,tn) 
 
-
 function searchcb(d::Any, n::Ptr{Void})
-         l = unsafe_pointer_to_objref(d)
-         push!(l, n)
-         return 1
-       end 
-searchcf = cfunction(searchcb, Int, (Ptr{Void}, Ptr{Void}))
+    l = unsafe_pointer_to_objref(d)
+    push!(l, n)
+    return
+end 
+searchcf = cfunction(searchcb, Void, (Ptr{Void}, Ptr{Void}))
 
-xsearch(n, tag, findall) = begin
+function xsearch(n, tag, findfirst)
   list = Ptr{xmlNode}[]
-  ccall( (:nodeDFS, "libxml2helper"), Void, (Ptr{Void}, Ptr{Uint8}, Any, Ptr{Void}), n, tag, list, searchcf)
+  _findfirst = (findfirst ? 0 : 1)
+  ccall( (:nodeDFS, "libxml2helper"), Void, (Ptr{Void}, Ptr{Uint8}, Any, Ptr{Void}, Cint), n, tag, list, searchcf, _findfirst)
   list
-  end
+end
 
 end # lxml
